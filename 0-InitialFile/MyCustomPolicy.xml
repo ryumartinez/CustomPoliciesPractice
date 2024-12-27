@@ -3,6 +3,7 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
   xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06"
+  xmlns:schemaLocation="https://raw.githubusercontent.com/Azure-Samples/active-directory-b2c-custom-policy-starterpack/master/TrustFrameworkPolicy_0.3.0.0.xsd"
   PolicySchemaVersion="0.3.0.0"
   TenantId="certiversepoc.onmicrosoft.com"
   PolicyId="B2C_1A_ContosoCustomPolicy"

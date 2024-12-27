@@ -185,7 +185,7 @@ CLAIM PROVIDERS
           <OutputClaims>
             <OutputClaim ClaimTypeReferenceId="givenName"/>
             <OutputClaim ClaimTypeReferenceId="surname"/>
-            <DisplayClaim ClaimTypeReferenceId="accountType" Required="true"/>
+            <OutputClaim ClaimTypeReferenceId="accountType" Required="true"/>
           </OutputClaims>
         </TechnicalProfile>
       </TechnicalProfiles>

@@ -31,20 +31,13 @@
       <DataType>string</DataType>
     </ClaimType>
 
-    <ClaimType Id="givenName">
-      <DisplayName>Given Name</DisplayName>
-      <DataType>string</DataType>
-      <UserHelpText>Your given name (also known as first name).</UserHelpText>
-      <UserInputType>TextBox</UserInputType>
-    </ClaimType>
-    <ClaimType Id="surname">
-      <DisplayName>Surname</DisplayName>
-      <DataType>string</DataType>
-      <UserHelpText>Your surname (also known as family name or last name).</UserHelpText>
-      <UserInputType>TextBox</UserInputType>
-    </ClaimType>
     <ClaimType Id="displayName">
       <DisplayName>Display Name</DisplayName>
+      <DataType>string</DataType>
+    </ClaimType>
+
+    <ClaimType Id="country">
+      <DisplayName>country</DisplayName>
       <DataType>string</DataType>
     </ClaimType>
   </ClaimsSchema>
@@ -110,6 +103,7 @@
         <OutputClaims>
           <OutputClaim ClaimTypeReferenceId="objectId" />
           <OutputClaim ClaimTypeReferenceId="displayName" />
+          <OutputClaim ClaimTypeReferenceId="country" />
         </OutputClaims>
         <IncludeTechnicalProfile ReferenceId="AAD-Common" />
       </TechnicalProfile>
@@ -140,13 +134,9 @@
           <Item Key="ContentDefinitionReferenceId">SelfAssertedContentDefinition</Item>
         </Metadata>
         <DisplayClaims>
-          <DisplayClaim ClaimTypeReferenceId="givenName" Required="true"/>
-          <DisplayClaim ClaimTypeReferenceId="surname" Required="true"/>
           <DisplayClaim ClaimTypeReferenceId="email" Required="true"/>
         </DisplayClaims>
         <OutputClaims>
-          <OutputClaim ClaimTypeReferenceId="givenName"/>
-          <OutputClaim ClaimTypeReferenceId="surname"/>
           <OutputClaim ClaimTypeReferenceId="email"/>
         </OutputClaims>
       </TechnicalProfile>
@@ -185,6 +175,7 @@
       <OutputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="sub"/>
       <OutputClaim ClaimTypeReferenceId="displayName"/>
       <OutputClaim ClaimTypeReferenceId="email"/>
+      <OutputClaim ClaimTypeReferenceId="country"/>
     </OutputClaims>
     <SubjectNamingInfo ClaimType="sub"/>
   </TechnicalProfile>

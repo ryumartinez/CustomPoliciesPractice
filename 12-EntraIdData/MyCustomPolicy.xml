@@ -40,6 +40,7 @@
       <DisplayName>country</DisplayName>
       <DataType>string</DataType>
     </ClaimType>
+
     <ClaimType Id="extension_requiresMigration">
       <DisplayName>Requires Migration</DisplayName>
       <DataType>boolean</DataType>
@@ -108,7 +109,7 @@
           <OutputClaim ClaimTypeReferenceId="objectId" />
           <OutputClaim ClaimTypeReferenceId="displayName" />
           <OutputClaim ClaimTypeReferenceId="country" />
-          <OutputClaim ClaimTypeReferenceId="extension_requiresMigration" DefaultValue="false"/>
+          <OutputClaim ClaimTypeReferenceId="extension_requiresMigration"/>
         </OutputClaims>
         <IncludeTechnicalProfile ReferenceId="AAD-Common" />
       </TechnicalProfile>

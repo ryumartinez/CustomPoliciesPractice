@@ -4,8 +4,8 @@
                       xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06"
                       xmlns:schemaLocation="https://raw.githubusercontent.com/Azure-Samples/active-directory-b2c-custom-policy-starterpack/master/TrustFrameworkPolicy_0.3.0.0.xsd"
                       PolicySchemaVersion="0.3.0.0" TenantId="certiversepoc.onmicrosoft.com"
-                      PolicyId="B2C_1A_RestSuccess"
-                      PublicPolicyUri="http://certiversepoc.onmicrosoft.com/B2C_1A_RestSuccess">
+                      PolicyId="B2C_1A_RestFailed"
+                      PublicPolicyUri="http://certiversepoc.onmicrosoft.com/B2C_1A_RestFailed">
 
 <BuildingBlocks>
   <ClaimsSchema>
@@ -122,7 +122,7 @@
         <DisplayName>REST API call to communicate with Legacy IdP</DisplayName>
         <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.RestfulProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
         <Metadata>
-          <Item Key="ServiceUrl">https://auth020241224085700.azurewebsites.net/api/identity</Item>
+          <Item Key="ServiceUrl">https://auth020241224085700.azurewebsites.net/api/identity2</Item>
           <Item Key="AuthenticationType">None</Item>
           <Item Key="SendClaimsIn">Body</Item>
           <Item Key="AllowInsecureAuthInProduction">true</Item>

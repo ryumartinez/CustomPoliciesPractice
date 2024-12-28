@@ -40,6 +40,10 @@
       <DisplayName>country</DisplayName>
       <DataType>string</DataType>
     </ClaimType>
+    <ClaimType Id="extension_requiresMigration">
+      <DisplayName>Requires Migration</DisplayName>
+      <DataType>boolean</DataType>
+    </ClaimType>
   </ClaimsSchema>
 
   <ContentDefinitions>
@@ -104,6 +108,7 @@
           <OutputClaim ClaimTypeReferenceId="objectId" />
           <OutputClaim ClaimTypeReferenceId="displayName" />
           <OutputClaim ClaimTypeReferenceId="country" />
+          <OutputClaim ClaimTypeReferenceId="extension_requiresMigration" DefaultValue="false" AlwaysUseDefaultValue="true"/>
         </OutputClaims>
         <IncludeTechnicalProfile ReferenceId="AAD-Common" />
       </TechnicalProfile>
@@ -176,6 +181,7 @@
       <OutputClaim ClaimTypeReferenceId="displayName"/>
       <OutputClaim ClaimTypeReferenceId="email"/>
       <OutputClaim ClaimTypeReferenceId="country"/>
+      <OutputClaim ClaimTypeReferenceId="extension_requiresMigration" PartnerClaimType="extension_requiresMigration"/>
     </OutputClaims>
     <SubjectNamingInfo ClaimType="sub"/>
   </TechnicalProfile>

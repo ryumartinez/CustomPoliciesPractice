@@ -108,7 +108,7 @@
           <OutputClaim ClaimTypeReferenceId="objectId" />
           <OutputClaim ClaimTypeReferenceId="displayName" />
           <OutputClaim ClaimTypeReferenceId="country" />
-          <OutputClaim ClaimTypeReferenceId="extension_requiresMigration" DefaultValue="false" AlwaysUseDefaultValue="true"/>
+          <OutputClaim ClaimTypeReferenceId="extension_requiresMigration" DefaultValue="false"/>
         </OutputClaims>
         <IncludeTechnicalProfile ReferenceId="AAD-Common" />
       </TechnicalProfile>

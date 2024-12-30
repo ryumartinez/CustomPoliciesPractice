@@ -226,7 +226,7 @@
                     <Metadata>
                         <Item Key="ClientId">c3a79a9b-60a7-4056-afa2-a553ce5ebb7d</Item>
                         <Item Key="ApplicationObjectId">1cf91709-e0fe-4c31-b96c-e225a8063960</Item>
-                        <Item Key="Operation">Read</Item>
+                        <Item Key="Operation">Write</Item>
                         <Item Key="RaiseErrorIfClaimsPrincipalAlreadyExists">false</Item>
                     </Metadata>
                     <IncludeInSso>false</IncludeInSso>

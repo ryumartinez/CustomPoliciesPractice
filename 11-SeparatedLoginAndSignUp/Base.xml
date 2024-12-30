@@ -2,9 +2,9 @@
 <TrustFrameworkPolicy
         xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06"
         PolicySchemaVersion="0.3.0.0"
-        TenantId="projectcenterdev.onmicrosoft.com"
+        TenantId="certiversepoc.onmicrosoft.com"
         PolicyId="B2C_1A_Base"
-        PublicPolicyUri="http://projectcenterdev.onmicrosoft.com/B2C_1A_Base">
+        PublicPolicyUri="http://certiversepoc.onmicrosoft.com/B2C_1A_Base">
     <BuildingBlocks>
         <ClaimsSchema>
             <ClaimType Id="objectId">

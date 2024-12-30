@@ -98,8 +98,13 @@
                         <OutputClaim ClaimTypeReferenceId="email" Required="true" />
                         <OutputClaim ClaimTypeReferenceId="password" Required="true" />
                         <OutputClaim ClaimTypeReferenceId="objectId" />
+                        <OutputClaim ClaimTypeReferenceId="displayName" />
+                        <OutputClaim ClaimTypeReferenceId="country" />
+                        <OutputClaim ClaimTypeReferenceId="extension_requiresMigration"/>
                     </OutputClaims>
+
                     <ValidationTechnicalProfiles>
+                        <ValidationTechnicalProfile ReferenceId="AAD-UserReadUsingEmailAddress" />
                         <ValidationTechnicalProfile ReferenceId="LogInLocalUser" />
                     </ValidationTechnicalProfiles>
                     <UseTechnicalProfileForSessionManagement ReferenceId="SSO-Default" />
@@ -185,12 +190,7 @@
                         <ClaimsExchange Id="ShowLogInForm" TechnicalProfileReferenceId="ShowLogInForm" />
                     </ClaimsExchanges>
                 </OrchestrationStep>
-                <OrchestrationStep Order="2" Type="ClaimsExchange">
-                    <ClaimsExchanges>
-                        <ClaimsExchange Id="GetRequiresMigrationStatus" TechnicalProfileReferenceId="AAD-UserReadUsingEmailAddress"/>
-                    </ClaimsExchanges>
-                </OrchestrationStep>
-                <OrchestrationStep Order="3" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JWTIssuer" />
+                <OrchestrationStep Order="2" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JWTIssuer" />
             </OrchestrationSteps>
         </UserJourney>
     </UserJourneys>

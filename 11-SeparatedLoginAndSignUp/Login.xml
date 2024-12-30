@@ -2,13 +2,13 @@
 <TrustFrameworkPolicy
         xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06"
         PolicySchemaVersion="0.3.0.0"
-        TenantId="projectcenterdev.onmicrosoft.com"
+        TenantId="certiversepoc.onmicrosoft.com"
         PolicyId="B2C_1A_LogIn"
-        PublicPolicyUri="http://projectcenterdev.onmicrosoft.com/B2C_1A_LogIn"
+        PublicPolicyUri="http://certiversepoc.onmicrosoft.com/B2C_1A_LogIn"
         DeploymentMode="Development"
         UserJourneyRecorderEndpoint="urn:journeyrecorder:applicationinsights">
     <BasePolicy>
-        <TenantId>projectcenterdev.onmicrosoft.com</TenantId>
+        <TenantId>certiversepoc.onmicrosoft.com</TenantId>
         <PolicyId>B2C_1A_Base</PolicyId>
     </BasePolicy>
 
@@ -101,8 +101,8 @@
                         <Item Key="scope">email openid</Item>
                         <Item Key="UsePolicyInRedirectUri">false</Item>
                         <Item Key="HttpBinding">POST</Item>
-                        <Item Key="client_id">5a27afdd-7bf5-4dec-ac27-aed798c6cf1d</Item>
-                        <Item Key="IdTokenAudience">867972ab-384c-4666-8cf0-c43f87e3dd9c</Item>
+                        <Item Key="client_id">57a18278-6e97-4c78-b502-bfe7e4717ed5</Item>  <!--ProxyIdentityFramework clientId here-->
+                        <Item Key="IdTokenAudience">06c6404f-412c-4651-93aa-9eb897427f84</Item>  <!--IdentityFramework clientId here-->
                     </Metadata>
                     <InputClaims>
                         <InputClaim ClaimTypeReferenceId="signInName" PartnerClaimType="username" Required="true" />
@@ -110,8 +110,8 @@
                         <InputClaim ClaimTypeReferenceId="grant_type" DefaultValue="password" AlwaysUseDefaultValue="true" />
                         <InputClaim ClaimTypeReferenceId="scope" DefaultValue="openid" AlwaysUseDefaultValue="true" />
                         <InputClaim ClaimTypeReferenceId="nca" PartnerClaimType="nca" DefaultValue="1" />
-                        <InputClaim ClaimTypeReferenceId="client_id" DefaultValue="5a27afdd-7bf5-4dec-ac27-aed798c6cf1d"/>
-                        <InputClaim ClaimTypeReferenceId="resource_id" PartnerClaimType="resource" DefaultValue="867972ab-384c-4666-8cf0-c43f87e3dd9c" />
+                        <InputClaim ClaimTypeReferenceId="client_id" DefaultValue="57a18278-6e97-4c78-b502-bfe7e4717ed5"/> <!--ProxyIdentityFramework clientId here-->
+                        <InputClaim ClaimTypeReferenceId="resource_id" PartnerClaimType="resource" DefaultValue="06c6404f-412c-4651-93aa-9eb897427f84" /> <!--IdentityFramework clientId here-->
                     </InputClaims>
                     <OutputClaims>
                         <OutputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="oid" />

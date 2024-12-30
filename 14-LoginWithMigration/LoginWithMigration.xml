@@ -41,6 +41,12 @@
                 <UserInputType>Password</UserInputType>
             </ClaimType>
 
+            <ClaimType Id="passwordPolicies">
+                <DisplayName>Password Policies</DisplayName>
+                <DataType>string</DataType>
+                <UserHelpText>Password policies used by Azure AD to determine password strength, expiry etc.</UserHelpText>
+            </ClaimType>
+
             <ClaimType Id="resource_id">
                 <DisplayName>resource_id</DisplayName>
                 <DataType>string</DataType>
@@ -122,7 +128,7 @@
                     <ValidationTechnicalProfiles>
                         <!--Read AAD data to collect requiresMigration attribute value-->
                         <ValidationTechnicalProfile ReferenceId="AAD-UserReadUsingEmailAddress" />
-                        <!--Call REST api if requiresMigration attribute is true-->
+                        <!--Call REST api if requiresMigration attribute is true and validate email and password with OAuth-->
                         <ValidationTechnicalProfile ReferenceId="ValidationWithOAuth">
                             <Preconditions>
                                 <Precondition Type="ClaimEquals" ExecuteActionsIf="true">
@@ -132,11 +138,8 @@
                                 </Precondition>
                             </Preconditions>
                         </ValidationTechnicalProfile>
-                        <!--Execute login flow user if REST api returns success with tokenSuccess value
-                            Or if requiresMigration is false
-                            If tokenSuccess does not exist it skips the login flow
-                        -->
-                        <ValidationTechnicalProfile ReferenceId="LogInLocalUser">
+                        <!--Update requiresMigration to false attribute only if REST api returns tokenSuccess with 200 status-->
+                        <ValidationTechnicalProfile ReferenceId="AAD-UserWriteUsingEmailAddress">
                             <Preconditions>
                                 <Precondition Type="ClaimsExist" ExecuteActionsIf="false">
                                     <Value>tokenSuccess</Value>
@@ -144,6 +147,8 @@
                                 </Precondition>
                             </Preconditions>
                         </ValidationTechnicalProfile>
+                        <!--Validates email and password with Entra-->
+                        <ValidationTechnicalProfile ReferenceId="LogInLocalUser"/>
                     </ValidationTechnicalProfiles>
                     <UseTechnicalProfileForSessionManagement ReferenceId="SSO-Default" />
                 </TechnicalProfile>
@@ -182,7 +187,7 @@
         </ClaimsProvider>
         <!--AAD data collector-->
         <ClaimsProvider>
-            <DisplayName>Local Account SignIn - Read migration status</DisplayName>
+            <DisplayName>AAD data collector</DisplayName>
             <TechnicalProfiles>
                 <TechnicalProfile Id="AAD-Common">
                     <DisplayName>Azure Active Directory</DisplayName>
@@ -214,6 +219,26 @@
                         <OutputClaim ClaimTypeReferenceId="country" />
                         <OutputClaim ClaimTypeReferenceId="extension_requiresMigration"/>
                     </OutputClaims>
+                    <IncludeTechnicalProfile ReferenceId="AAD-Common" />
+                </TechnicalProfile>
+
+                <TechnicalProfile Id="AAD-UserWriteUsingEmailAddress">
+                    <Metadata>
+                        <Item Key="ClientId">c3a79a9b-60a7-4056-afa2-a553ce5ebb7d</Item>
+                        <Item Key="ApplicationObjectId">1cf91709-e0fe-4c31-b96c-e225a8063960</Item>
+                        <Item Key="Operation">Read</Item>
+                        <Item Key="RaiseErrorIfClaimsPrincipalAlreadyExists">false</Item>
+                    </Metadata>
+                    <IncludeInSso>false</IncludeInSso>
+                    <InputClaims>
+                        <InputClaim ClaimTypeReferenceId="email" PartnerClaimType="signInNames.emailAddress" Required="true" />
+                    </InputClaims>
+                    <PersistedClaims>
+                        <PersistedClaim ClaimTypeReferenceId="passwordPolicies" DefaultValue="DisablePasswordExpiration, DisableStrongPassword" AlwaysUseDefaultValue="true"/>
+                        <PersistedClaim ClaimTypeReferenceId="objectId" />
+                        <PersistedClaim ClaimTypeReferenceId="password" PartnerClaimType="password"/>
+                        <PersistedClaim ClaimTypeReferenceId="migrationRequired" PartnerClaimType="extension_requiresMigration"/>
+                    </PersistedClaims>
                     <IncludeTechnicalProfile ReferenceId="AAD-Common" />
                 </TechnicalProfile>
             </TechnicalProfiles>

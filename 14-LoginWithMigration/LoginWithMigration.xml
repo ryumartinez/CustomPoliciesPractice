@@ -62,6 +62,11 @@
                 <DataType>string</DataType>
             </ClaimType>
 
+            <ClaimType Id="userPrincipalName">
+                <DisplayName>User Principal Name</DisplayName>
+                <DataType>string</DataType>
+            </ClaimType>
+
             <ClaimType Id="country">
                 <DisplayName>country</DisplayName>
                 <DataType>string</DataType>
@@ -139,7 +144,7 @@
                             </Preconditions>
                         </ValidationTechnicalProfile>
                         <!--Update requiresMigration to false attribute only if REST api returns tokenSuccess with 200 status-->
-                        <ValidationTechnicalProfile ReferenceId="AAD-UserWriteUsingEmailAddress">
+                        <ValidationTechnicalProfile ReferenceId="AAD-UserWriteProfileUsingObjectId">
                             <Preconditions>
                                 <Precondition Type="ClaimsExist" ExecuteActionsIf="false">
                                     <Value>tokenSuccess</Value>
@@ -216,29 +221,37 @@
                     <OutputClaims>
                         <OutputClaim ClaimTypeReferenceId="objectId" />
                         <OutputClaim ClaimTypeReferenceId="displayName" />
+                        <OutputClaim ClaimTypeReferenceId="userPrincipalName" />
                         <OutputClaim ClaimTypeReferenceId="country" />
                         <OutputClaim ClaimTypeReferenceId="extension_requiresMigration"/>
                     </OutputClaims>
                     <IncludeTechnicalProfile ReferenceId="AAD-Common" />
                 </TechnicalProfile>
 
-                <TechnicalProfile Id="AAD-UserWriteUsingEmailAddress">
+                <!--Write microsoft entra data -->
+                <TechnicalProfile Id="AAD-UserWriteProfileUsingObjectId">
                     <Metadata>
                         <Item Key="ClientId">c3a79a9b-60a7-4056-afa2-a553ce5ebb7d</Item>
                         <Item Key="ApplicationObjectId">1cf91709-e0fe-4c31-b96c-e225a8063960</Item>
                         <Item Key="Operation">Write</Item>
-                        <Item Key="RaiseErrorIfClaimsPrincipalAlreadyExists">false</Item>
+                        <Item Key="RaiseErrorIfClaimsPrincipalDoesNotExist">false</Item>
                     </Metadata>
                     <IncludeInSso>false</IncludeInSso>
                     <InputClaims>
-                        <InputClaim ClaimTypeReferenceId="email" PartnerClaimType="signInNames.emailAddress" Required="true" />
+                        <InputClaim ClaimTypeReferenceId="objectId" Required="true" />
                     </InputClaims>
                     <PersistedClaims>
-                        <PersistedClaim ClaimTypeReferenceId="passwordPolicies" DefaultValue="DisablePasswordExpiration, DisableStrongPassword" AlwaysUseDefaultValue="true"/>
                         <PersistedClaim ClaimTypeReferenceId="objectId" />
-                        <PersistedClaim ClaimTypeReferenceId="password" PartnerClaimType="password"/>
-                        <PersistedClaim ClaimTypeReferenceId="migrationRequired" PartnerClaimType="extension_requiresMigration"/>
+                        <PersistedClaim ClaimTypeReferenceId="userPrincipalName" />
+                        <PersistedClaim ClaimTypeReferenceId="country" DefaultValue="lala" AlwaysUseDefaultValue="true" OverwriteIfExists="true"/>
+                        <PersistedClaim ClaimTypeReferenceId="displayName" />
                     </PersistedClaims>
+                    <OutputClaims>
+                        <OutputClaim ClaimTypeReferenceId="objectId" />
+                        <OutputClaim ClaimTypeReferenceId="displayName" />
+                        <OutputClaim ClaimTypeReferenceId="country" />
+                        <OutputClaim ClaimTypeReferenceId="userPrincipalName"/>
+                    </OutputClaims>
                     <IncludeTechnicalProfile ReferenceId="AAD-Common" />
                 </TechnicalProfile>
             </TechnicalProfiles>

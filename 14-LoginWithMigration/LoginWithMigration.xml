@@ -50,6 +50,21 @@
                 <DisplayName>scope</DisplayName>
                 <DataType>string</DataType>
             </ClaimType>
+
+            <ClaimType Id="displayName">
+                <DisplayName>Display Name</DisplayName>
+                <DataType>string</DataType>
+            </ClaimType>
+
+            <ClaimType Id="country">
+                <DisplayName>country</DisplayName>
+                <DataType>string</DataType>
+            </ClaimType>
+
+            <ClaimType Id="extension_requiresMigration">
+                <DisplayName>Requires Migration</DisplayName>
+                <DataType>boolean</DataType>
+            </ClaimType>
         </ClaimsSchema>
 
         <ContentDefinitions>
@@ -65,6 +80,7 @@
     </BuildingBlocks>
 
     <ClaimsProviders>
+        <!--Show form and collect input data-->
         <ClaimsProvider>
             <DisplayName>Local User</DisplayName>
             <TechnicalProfiles>
@@ -76,10 +92,10 @@
                         <Item Key="ContentDefinitionReferenceId">api.localaccountsignin</Item>
                     </Metadata>
                     <InputClaims>
-                        <InputClaim ClaimTypeReferenceId="signInName" />
+                        <InputClaim ClaimTypeReferenceId="email" />
                     </InputClaims>
                     <OutputClaims>
-                        <OutputClaim ClaimTypeReferenceId="signInName" Required="true" />
+                        <OutputClaim ClaimTypeReferenceId="email" Required="true" />
                         <OutputClaim ClaimTypeReferenceId="password" Required="true" />
                         <OutputClaim ClaimTypeReferenceId="objectId" />
                     </OutputClaims>
@@ -105,7 +121,7 @@
                         <Item Key="IdTokenAudience">06c6404f-412c-4651-93aa-9eb897427f84</Item>  <!--IdentityFramework clientId here-->
                     </Metadata>
                     <InputClaims>
-                        <InputClaim ClaimTypeReferenceId="signInName" PartnerClaimType="username" Required="true" />
+                        <InputClaim ClaimTypeReferenceId="email" PartnerClaimType="username" Required="true" />
                         <InputClaim ClaimTypeReferenceId="password" Required="true" />
                         <InputClaim ClaimTypeReferenceId="grant_type" DefaultValue="password" AlwaysUseDefaultValue="true" />
                         <InputClaim ClaimTypeReferenceId="scope" DefaultValue="openid" AlwaysUseDefaultValue="true" />
@@ -121,6 +137,44 @@
                 </TechnicalProfile>
             </TechnicalProfiles>
         </ClaimsProvider>
+        <!--AAD data collector-->
+        <ClaimsProvider>
+            <DisplayName>Local Account SignIn - Read migration status</DisplayName>
+            <TechnicalProfiles>
+                <TechnicalProfile Id="AAD-Common">
+                    <DisplayName>Azure Active Directory</DisplayName>
+                    <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.AzureActiveDirectoryProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+
+                    <CryptographicKeys>
+                        <Key Id="issuer_secret" StorageReferenceId="B2C_1A_TokenSigningKeyContainer" />
+                    </CryptographicKeys>
+
+                    <!-- We need this here to suppress the SelfAsserted provider from invoking SSO on validation profiles. -->
+                    <IncludeInSso>false</IncludeInSso>
+                </TechnicalProfile>
+
+                <TechnicalProfile Id="AAD-UserReadUsingEmailAddress">
+                    <Metadata>
+                        <Item Key="ClientId">c3a79a9b-60a7-4056-afa2-a553ce5ebb7d</Item>
+                        <Item Key="ApplicationObjectId">1cf91709-e0fe-4c31-b96c-e225a8063960</Item>
+                        <Item Key="Operation">Read</Item>
+                        <Item Key="RaiseErrorIfClaimsPrincipalDoesNotExist">true</Item>
+                        <Item Key="UserMessageIfClaimsPrincipalDoesNotExist">An account could not be found for the provided user ID.</Item>
+                    </Metadata>
+                    <IncludeInSso>false</IncludeInSso>
+                    <InputClaims>
+                        <InputClaim ClaimTypeReferenceId="email" PartnerClaimType="signInNames.emailAddress" Required="true" />
+                    </InputClaims>
+                    <OutputClaims>
+                        <OutputClaim ClaimTypeReferenceId="objectId" />
+                        <OutputClaim ClaimTypeReferenceId="displayName" />
+                        <OutputClaim ClaimTypeReferenceId="country" />
+                        <OutputClaim ClaimTypeReferenceId="extension_requiresMigration"/>
+                    </OutputClaims>
+                    <IncludeTechnicalProfile ReferenceId="AAD-Common" />
+                </TechnicalProfile>
+            </TechnicalProfiles>
+        </ClaimsProvider>
     </ClaimsProviders>
 
     <UserJourneys>
@@ -131,7 +185,12 @@
                         <ClaimsExchange Id="ShowLogInForm" TechnicalProfileReferenceId="ShowLogInForm" />
                     </ClaimsExchanges>
                 </OrchestrationStep>
-                <OrchestrationStep Order="2" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JWTIssuer" />
+                <OrchestrationStep Order="2" Type="ClaimsExchange">
+                    <ClaimsExchanges>
+                        <ClaimsExchange Id="GetRequiresMigrationStatus" TechnicalProfileReferenceId="AAD-UserReadUsingEmailAddress"/>
+                    </ClaimsExchanges>
+                </OrchestrationStep>
+                <OrchestrationStep Order="3" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JWTIssuer" />
             </OrchestrationSteps>
         </UserJourney>
     </UserJourneys>
@@ -152,11 +211,15 @@
             <Description>Allows users to log into a client application using their password</Description>
             <Protocol Name="OpenIdConnect" />
             <InputClaims>
-                <InputClaim ClaimTypeReferenceId="signInName" />
+                <InputClaim ClaimTypeReferenceId="email" />
             </InputClaims>
             <OutputClaims>
                 <OutputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="sub" />
                 <OutputClaim ClaimTypeReferenceId="tenantId" AlwaysUseDefaultValue="true" DefaultValue="{Policy:TenantObjectId}" />
+                <OutputClaim ClaimTypeReferenceId="displayName"/>
+                <OutputClaim ClaimTypeReferenceId="email"/>
+                <OutputClaim ClaimTypeReferenceId="country"/>
+                <OutputClaim ClaimTypeReferenceId="extension_requiresMigration" PartnerClaimType="extension_requiresMigration"/>
             </OutputClaims>
             <SubjectNamingInfo ClaimType="sub" />
         </TechnicalProfile>

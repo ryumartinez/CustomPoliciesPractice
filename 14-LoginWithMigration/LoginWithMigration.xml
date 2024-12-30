@@ -190,6 +190,7 @@
                 </TechnicalProfile>
             </TechnicalProfiles>
         </ClaimsProvider>
+
         <!--AAD data collector-->
         <ClaimsProvider>
             <DisplayName>AAD data collector</DisplayName>

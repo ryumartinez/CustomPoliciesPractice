@@ -243,14 +243,16 @@
                     <PersistedClaims>
                         <PersistedClaim ClaimTypeReferenceId="objectId" />
                         <PersistedClaim ClaimTypeReferenceId="userPrincipalName" />
-                        <PersistedClaim ClaimTypeReferenceId="country" DefaultValue="lala" AlwaysUseDefaultValue="true" OverwriteIfExists="true"/>
+                        <PersistedClaim ClaimTypeReferenceId="extension_requiresMigration" DefaultValue="false" AlwaysUseDefaultValue="true" OverwriteIfExists="true"/>
+                        <PersistedClaim ClaimTypeReferenceId="password" OverwriteIfExists="true"/>
+                        <PersistedClaim ClaimTypeReferenceId="passwordPolicies" DefaultValue="DisablePasswordExpiration, DisableStrongPassword" AlwaysUseDefaultValue="true"/>
                         <PersistedClaim ClaimTypeReferenceId="displayName" />
                     </PersistedClaims>
                     <OutputClaims>
                         <OutputClaim ClaimTypeReferenceId="objectId" />
-                        <OutputClaim ClaimTypeReferenceId="displayName" />
-                        <OutputClaim ClaimTypeReferenceId="country" />
                         <OutputClaim ClaimTypeReferenceId="userPrincipalName"/>
+                        <OutputClaim ClaimTypeReferenceId="country" />
+                        <OutputClaim ClaimTypeReferenceId="displayName" />
                     </OutputClaims>
                     <IncludeTechnicalProfile ReferenceId="AAD-Common" />
                 </TechnicalProfile>

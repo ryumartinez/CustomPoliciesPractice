@@ -65,6 +65,20 @@
                 <DisplayName>Requires Migration</DisplayName>
                 <DataType>boolean</DataType>
             </ClaimType>
+
+            <ClaimType Id="tokenSuccess">
+                <DisplayName>tokenSuccess</DisplayName>
+                <DataType>boolean</DataType>
+                <AdminHelpText>tokenSuccess</AdminHelpText>
+                <UserHelpText>tokenSuccess</UserHelpText>
+            </ClaimType>
+
+            <ClaimType Id="migrationRequired">
+                <DisplayName>migrationRequired</DisplayName>
+                <DataType>boolean</DataType>
+                <AdminHelpText>migrationRequired</AdminHelpText>
+                <UserHelpText>migrationRequired</UserHelpText>
+            </ClaimType>
         </ClaimsSchema>
 
         <ContentDefinitions>
@@ -101,11 +115,35 @@
                         <OutputClaim ClaimTypeReferenceId="displayName" />
                         <OutputClaim ClaimTypeReferenceId="country" />
                         <OutputClaim ClaimTypeReferenceId="extension_requiresMigration"/>
+                        <OutputClaim ClaimTypeReferenceId="migrationRequired"/>
+                        <OutputClaim ClaimTypeReferenceId="tokenSuccess"/>
                     </OutputClaims>
 
                     <ValidationTechnicalProfiles>
+                        <!--Read AAD data to collect requiresMigration attribute value-->
                         <ValidationTechnicalProfile ReferenceId="AAD-UserReadUsingEmailAddress" />
-                        <ValidationTechnicalProfile ReferenceId="LogInLocalUser" />
+                        <!--Call REST api if requiresMigration attribute is true-->
+                        <ValidationTechnicalProfile ReferenceId="ValidationWithOAuth">
+                            <Preconditions>
+                                <Precondition Type="ClaimEquals" ExecuteActionsIf="true">
+                                    <Value>extension_requiresMigration</Value>
+                                    <Value>False</Value>
+                                    <Action>SkipThisValidationTechnicalProfile</Action>
+                                </Precondition>
+                            </Preconditions>
+                        </ValidationTechnicalProfile>
+                        <!--Execute login flow user if REST api returns success with tokenSuccess value
+                            Or if requiresMigration is false
+                            If tokenSuccess does not exist it skips the login flow
+                        -->
+                        <ValidationTechnicalProfile ReferenceId="LogInLocalUser">
+                            <Preconditions>
+                                <Precondition Type="ClaimsExist" ExecuteActionsIf="false">
+                                    <Value>tokenSuccess</Value>
+                                    <Action>SkipThisValidationTechnicalProfile</Action>
+                                </Precondition>
+                            </Preconditions>
+                        </ValidationTechnicalProfile>
                     </ValidationTechnicalProfiles>
                     <UseTechnicalProfileForSessionManagement ReferenceId="SSO-Default" />
                 </TechnicalProfile>
@@ -180,6 +218,31 @@
                 </TechnicalProfile>
             </TechnicalProfiles>
         </ClaimsProvider>
+
+        <!--Rest api data collector-->
+        <ClaimsProvider>
+            <DisplayName>REST API to communicate with Legacy IdP</DisplayName>
+            <TechnicalProfiles>
+                <TechnicalProfile Id="ValidationWithOAuth">
+                    <DisplayName>REST API call to communicate with Legacy IdP</DisplayName>
+                    <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.RestfulProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+                    <Metadata>
+                        <Item Key="ServiceUrl">https://auth020241224085700.azurewebsites.net/api/identity</Item>
+                        <Item Key="AuthenticationType">None</Item>
+                        <Item Key="SendClaimsIn">Body</Item>
+                        <Item Key="AllowInsecureAuthInProduction">true</Item>
+                    </Metadata>
+                    <InputClaims>
+                        <InputClaim ClaimTypeReferenceId="email"/>
+                        <InputClaim ClaimTypeReferenceId="password" DefaultValue="dsfasdfdas"/>
+                    </InputClaims>
+                    <OutputClaims>
+                        <OutputClaim ClaimTypeReferenceId="tokenSuccess" DefaultValue="false"/>
+                        <OutputClaim ClaimTypeReferenceId="migrationRequired" DefaultValue="true"/>
+                    </OutputClaims>
+                </TechnicalProfile>
+            </TechnicalProfiles>
+        </ClaimsProvider>
     </ClaimsProviders>
 
     <UserJourneys>
@@ -220,6 +283,8 @@
                 <OutputClaim ClaimTypeReferenceId="email"/>
                 <OutputClaim ClaimTypeReferenceId="country"/>
                 <OutputClaim ClaimTypeReferenceId="extension_requiresMigration" PartnerClaimType="extension_requiresMigration"/>
+                <OutputClaim ClaimTypeReferenceId="migrationRequired"/>
+                <OutputClaim ClaimTypeReferenceId="tokenSuccess"/>
             </OutputClaims>
             <SubjectNamingInfo ClaimType="sub" />
         </TechnicalProfile>

@@ -16,9 +16,9 @@
             </ClaimType>
 
             <ClaimType Id="signInName">
-                <DisplayName>Email</DisplayName>
+                <DisplayName>Username</DisplayName>
                 <DataType>string</DataType>
-                <UserHelpText>Email</UserHelpText>
+                <UserHelpText>Username</UserHelpText>
                 <UserInputType>TextBox</UserInputType>
             </ClaimType>
 

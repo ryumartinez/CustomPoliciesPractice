@@ -46,7 +46,7 @@
                 </Restriction>
             </ClaimType>
 
-            <ClaimType Id="email">
+            <ClaimType Id="signInNames.userName">
                 <DisplayName>Username</DisplayName>
                 <DataType>string</DataType>
                 <UserHelpText>Username</UserHelpText>
@@ -58,6 +58,17 @@
                 <DataType>string</DataType>
             </ClaimType>
         </ClaimsSchema>
+
+        <ClaimsTransformations>
+            <ClaimsTransformation Id="SetDisplayNameToSignInName" TransformationMethod="CopyClaim">
+                <InputClaims>
+                    <InputClaim ClaimTypeReferenceId="signInName" TransformationClaimType="inputClaim" />
+                </InputClaims>
+                <OutputClaims>
+                    <OutputClaim ClaimTypeReferenceId="displayName" TransformationClaimType="outputClaim" />
+                </OutputClaims>
+            </ClaimsTransformation>
+        </ClaimsTransformations>
 
         <ContentDefinitions>
             <ContentDefinition Id="api.localaccountsignup">
@@ -84,14 +95,17 @@
                         <Item Key="RaiseErrorIfClaimsPrincipalAlreadyExists">true</Item>
                     </Metadata>
                     <IncludeInSso>false</IncludeInSso>
+                    <InputClaimsTransformations>
+                        <InputClaimsTransformation ReferenceId="SetDisplayNameToSignInName" />
+                    </InputClaimsTransformations>
                     <InputClaims>
-                        <InputClaim ClaimTypeReferenceId="email" PartnerClaimType="SignInNames.emailAddress" Required="true" />
+                        <InputClaim ClaimTypeReferenceId="signInName" PartnerClaimType="signInNames.userName" Required="true" />
                     </InputClaims>
                     <PersistedClaims>
                         <PersistedClaim ClaimTypeReferenceId="displayName" DefaultValue="unknown"/>
                         <PersistedClaim ClaimTypeReferenceId="newPassword" PartnerClaimType="password" />
                         <PersistedClaim ClaimTypeReferenceId="passwordPolicies" DefaultValue="DisablePasswordExpiration" />
-                        <PersistedClaim ClaimTypeReferenceId="email" />
+                        <PersistedClaim ClaimTypeReferenceId="signInName" PartnerClaimType="signInNames.userName" />
                     </PersistedClaims>
                     <OutputClaims>
                         <OutputClaim ClaimTypeReferenceId="objectId" />
@@ -113,7 +127,7 @@
                         <Item Key="ContentDefinitionReferenceId">api.localaccountsignup</Item>
                     </Metadata>
                     <OutputClaims>
-                        <OutputClaim ClaimTypeReferenceId="email" Required="true" />
+                        <OutputClaim ClaimTypeReferenceId="signInName" Required="true" />
                         <OutputClaim ClaimTypeReferenceId="newPassword" Required="true" />
                         <OutputClaim ClaimTypeReferenceId="reenterPassword" Required="true" />
                         <OutputClaim ClaimTypeReferenceId="objectId" />

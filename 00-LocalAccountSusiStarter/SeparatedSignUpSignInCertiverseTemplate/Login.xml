@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<TrustFrameworkPolicy
+        xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06"
+        PolicySchemaVersion="0.3.0.0"
+        TenantId="certiversepoc.onmicrosoft.com"
+        PolicyId="B2C_1A_LogIn"
+        PublicPolicyUri="http://certiversepoc.onmicrosoft.com/B2C_1A_LogIn"
+        DeploymentMode="Development"
+        UserJourneyRecorderEndpoint="urn:journeyrecorder:applicationinsights">
+    <BasePolicy>
+        <TenantId>certiversepoc.onmicrosoft.com</TenantId>
+        <PolicyId>B2C_1A_Base</PolicyId>
+    </BasePolicy>
+
+    <BuildingBlocks>
+        <ClaimsSchema>
+            <ClaimType Id="authenticationSource">
+                <DisplayName>Authentication Source</DisplayName>
+                <DataType>string</DataType>
+            </ClaimType>
+
+            <ClaimType Id="client_id">
+                <DisplayName>client_id</DisplayName>
+                <DataType>string</DataType>
+            </ClaimType>
+
+            <ClaimType Id="grant_type">
+                <DisplayName>grant_type</DisplayName>
+                <DataType>string</DataType>
+            </ClaimType>
+
+            <ClaimType Id="nca">
+                <DisplayName>nca</DisplayName>
+                <DataType>string</DataType>
+            </ClaimType>
+
+            <ClaimType Id="password">
+                <DisplayName>Password</DisplayName>
+                <DataType>string</DataType>
+                <UserHelpText>Password</UserHelpText>
+                <UserInputType>Password</UserInputType>
+            </ClaimType>
+
+            <ClaimType Id="resource_id">
+                <DisplayName>resource_id</DisplayName>
+                <DataType>string</DataType>
+            </ClaimType>
+
+            <ClaimType Id="scope">
+                <DisplayName>scope</DisplayName>
+                <DataType>string</DataType>
+            </ClaimType>
+        </ClaimsSchema>
+
+        <ContentDefinitions>
+            <ContentDefinition Id="api.localaccountsignin">
+                <LoadUri>https://certiversepoc.blob.core.windows.net/auth-template/custom-sign-up.html</LoadUri>
+                <RecoveryUri>~/common/default_page_error.html</RecoveryUri>
+                <DataUri>urn:com:microsoft:aad:b2c:elements:contract:selfasserted:2.1.7</DataUri>
+                <Metadata>
+                    <Item Key="DisplayName">Log In</Item>
+                </Metadata>
+            </ContentDefinition>
+        </ContentDefinitions>
+    </BuildingBlocks>
+
+    <ClaimsProviders>
+        <ClaimsProvider>
+            <DisplayName>Local User</DisplayName>
+            <TechnicalProfiles>
+                <TechnicalProfile Id="ShowLogInForm">
+                    <DisplayName>Log In Form</DisplayName>
+                    <Description>Presents the user with a form to log in with</Description>
+                    <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+                    <Metadata>
+                        <Item Key="ContentDefinitionReferenceId">api.localaccountsignin</Item>
+                    </Metadata>
+                    <InputClaims>
+                        <InputClaim ClaimTypeReferenceId="signInName" />
+                    </InputClaims>
+                    <OutputClaims>
+                        <OutputClaim ClaimTypeReferenceId="signInName" Required="true" />
+                        <OutputClaim ClaimTypeReferenceId="password" Required="true" />
+                        <OutputClaim ClaimTypeReferenceId="objectId" />
+                    </OutputClaims>
+                    <ValidationTechnicalProfiles>
+                        <ValidationTechnicalProfile ReferenceId="LogInLocalUser" />
+                    </ValidationTechnicalProfiles>
+                    <UseTechnicalProfileForSessionManagement ReferenceId="SSO-Default" />
+                </TechnicalProfile>
+
+                <TechnicalProfile Id="LogInLocalUser">
+                    <DisplayName>Local Account Log In</DisplayName>
+                    <Protocol Name="OpenIdConnect" />
+                    <Metadata>
+                        <Item Key="ProviderName">https://sts.windows.net/</Item>
+                        <Item Key="METADATA">https://login.microsoftonline.com/{tenant}/.well-known/openid-configuration</Item>
+                        <Item Key="authorization_endpoint">https://login.microsoftonline.com/{tenant}/oauth2/token</Item>
+                        <Item Key="response_types">id_token</Item>
+                        <Item Key="response_mode">query</Item>
+                        <Item Key="scope">email openid</Item>
+                        <Item Key="UsePolicyInRedirectUri">false</Item>
+                        <Item Key="HttpBinding">POST</Item>
+                        <Item Key="client_id">57a18278-6e97-4c78-b502-bfe7e4717ed5</Item>  <!--ProxyIdentityFramework clientId here-->
+                        <Item Key="IdTokenAudience">06c6404f-412c-4651-93aa-9eb897427f84</Item>  <!--IdentityFramework clientId here-->
+                    </Metadata>
+                    <InputClaims>
+                        <InputClaim ClaimTypeReferenceId="signInName" PartnerClaimType="username" Required="true" />
+                        <InputClaim ClaimTypeReferenceId="password" Required="true" />
+                        <InputClaim ClaimTypeReferenceId="grant_type" DefaultValue="password" AlwaysUseDefaultValue="true" />
+                        <InputClaim ClaimTypeReferenceId="scope" DefaultValue="openid" AlwaysUseDefaultValue="true" />
+                        <InputClaim ClaimTypeReferenceId="nca" PartnerClaimType="nca" DefaultValue="1" />
+                        <InputClaim ClaimTypeReferenceId="client_id" DefaultValue="57a18278-6e97-4c78-b502-bfe7e4717ed5"/> <!--ProxyIdentityFramework clientId here-->
+                        <InputClaim ClaimTypeReferenceId="resource_id" PartnerClaimType="resource" DefaultValue="06c6404f-412c-4651-93aa-9eb897427f84" /> <!--IdentityFramework clientId here-->
+                    </InputClaims>
+                    <OutputClaims>
+                        <OutputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="oid" />
+                        <OutputClaim ClaimTypeReferenceId="tenantId" PartnerClaimType="tid" />
+                        <OutputClaim ClaimTypeReferenceId="authenticationSource" DefaultValue="localAccountAuthentication" />
+                    </OutputClaims>
+                </TechnicalProfile>
+            </TechnicalProfiles>
+        </ClaimsProvider>
+    </ClaimsProviders>
+
+    <UserJourneys>
+        <UserJourney Id="LogIn">
+            <OrchestrationSteps>
+                <OrchestrationStep Order="1" Type="ClaimsExchange">
+                    <ClaimsExchanges>
+                        <ClaimsExchange Id="ShowLogInForm" TechnicalProfileReferenceId="ShowLogInForm" />
+                    </ClaimsExchanges>
+                </OrchestrationStep>
+                <OrchestrationStep Order="2" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JWTIssuer" />
+            </OrchestrationSteps>
+        </UserJourney>
+    </UserJourneys>
+
+    <RelyingParty>
+        <DefaultUserJourney ReferenceId="LogIn" />
+        <UserJourneyBehaviors>
+            <JourneyInsights
+                    TelemetryEngine="ApplicationInsights"
+                    InstrumentationKey="7c25e293-8d7e-46c8-9e84-39400c53f1fb"
+                    DeveloperMode="true"
+                    ClientEnabled="true"
+                    ServerEnabled="true"
+                    TelemetryVersion="1.0.0" />
+        </UserJourneyBehaviors>
+        <TechnicalProfile Id="PolicyProfile">
+            <DisplayName>Log In</DisplayName>
+            <Description>Allows users to log into a client application using their password</Description>
+            <Protocol Name="OpenIdConnect" />
+            <InputClaims>
+                <InputClaim ClaimTypeReferenceId="signInName" />
+            </InputClaims>
+            <OutputClaims>
+                <OutputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="sub" />
+                <OutputClaim ClaimTypeReferenceId="tenantId" AlwaysUseDefaultValue="true" DefaultValue="{Policy:TenantObjectId}" />
+            </OutputClaims>
+            <SubjectNamingInfo ClaimType="sub" />
+        </TechnicalProfile>
+    </RelyingParty>
+</TrustFrameworkPolicy>

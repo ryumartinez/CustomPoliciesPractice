@@ -1,0 +1,1 @@
+https://medium.com/neudesic-innovation/log-in-with-local-accounts-on-azure-ad-b2c-57f1f9ba753b

@@ -280,7 +280,6 @@
         <UserHelpText>Your given name (also known as first name).</UserHelpText>
         <UserInputType>TextBox</UserInputType>
       </ClaimType>
-
     </ClaimsSchema>
 
     <ClaimsTransformations>
@@ -414,6 +413,7 @@
 
   <!--User CRUD operations-->
   <ClaimsProviders>
+    <!--OpenId connection-->
     <ClaimsProvider>
       <DisplayName>Local Account SignIn</DisplayName>
       <TechnicalProfiles>
@@ -811,7 +811,6 @@
   </ClaimsProviders>
 
   <UserJourneys>
-
     <UserJourney Id="SignUpOrSignIn">
       <OrchestrationSteps>
 
@@ -915,6 +914,5 @@
         <OrchestrationStep Order="3" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
       </OrchestrationSteps>
     </UserJourney>
-    
   </UserJourneys>
 </TrustFrameworkPolicy>

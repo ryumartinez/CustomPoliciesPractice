@@ -478,6 +478,31 @@
       </TechnicalProfiles>
     </ClaimsProvider>
 
+    <!--Rest api data collector-->
+    <ClaimsProvider>
+      <DisplayName>REST API to communicate with Legacy IdP</DisplayName>
+      <TechnicalProfiles>
+        <TechnicalProfile Id="ValidationWithOAuth">
+          <DisplayName>REST API call to communicate with Legacy IdP</DisplayName>
+          <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.RestfulProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+          <Metadata>
+            <Item Key="ServiceUrl">https://auth020241224085700.azurewebsites.net/api/identity</Item>
+            <Item Key="AuthenticationType">None</Item>
+            <Item Key="SendClaimsIn">Body</Item>
+            <Item Key="AllowInsecureAuthInProduction">true</Item>
+          </Metadata>
+          <InputClaims>
+            <InputClaim ClaimTypeReferenceId="email"/>
+            <InputClaim ClaimTypeReferenceId="password" DefaultValue="dsfasdfdas"/>
+          </InputClaims>
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="tokenSuccess" DefaultValue="false"/>
+            <OutputClaim ClaimTypeReferenceId="migrationRequired" DefaultValue="true"/>
+          </OutputClaims>
+        </TechnicalProfile>
+      </TechnicalProfiles>
+    </ClaimsProvider>
+
     <!--Entra data manipulation-->
     <ClaimsProvider>
       <DisplayName>Azure Active Directory</DisplayName>
@@ -556,6 +581,8 @@
         <!--Write password using user id-->
         <TechnicalProfile Id="AAD-UserWritePasswordUsingObjectId">
           <Metadata>
+            <Item Key="ClientId">c3a79a9b-60a7-4056-afa2-a553ce5ebb7d</Item>
+            <Item Key="ApplicationObjectId">1cf91709-e0fe-4c31-b96c-e225a8063960</Item>
             <Item Key="Operation">Write</Item>
             <Item Key="RaiseErrorIfClaimsPrincipalDoesNotExist">true</Item>
           </Metadata>
@@ -566,7 +593,7 @@
           <PersistedClaims>
             <PersistedClaim ClaimTypeReferenceId="objectId" />
             <PersistedClaim ClaimTypeReferenceId="newPassword" PartnerClaimType="password" />
-
+            <PersistedClaim ClaimTypeReferenceId="extension_requiresMigration" DefaultValue="false" AlwaysUseDefaultValue="true" OverwriteIfExists="true"/>
           </PersistedClaims>
           <IncludeTechnicalProfile ReferenceId="AAD-Common" />
         </TechnicalProfile>
@@ -667,8 +694,33 @@
             <OutputClaim ClaimTypeReferenceId="password" Required="true" />
             <OutputClaim ClaimTypeReferenceId="objectId" />
             <OutputClaim ClaimTypeReferenceId="authenticationSource" />
+            <OutputClaim ClaimTypeReferenceId="extension_requiresMigration"/>
+            <OutputClaim ClaimTypeReferenceId="migrationRequired"/>
+            <OutputClaim ClaimTypeReferenceId="tokenSuccess"/>
           </OutputClaims>
           <ValidationTechnicalProfiles>
+            <!--Read AAD data to collect requiresMigration attribute value-->
+            <ValidationTechnicalProfile ReferenceId="AAD-UserReadUsingEmailAddress" />
+            <!--Call REST api if requiresMigration attribute is true and validate email and password with OAuth-->
+            <ValidationTechnicalProfile ReferenceId="ValidationWithOAuth">
+              <Preconditions>
+                <Precondition Type="ClaimEquals" ExecuteActionsIf="true">
+                  <Value>extension_requiresMigration</Value>
+                  <Value>False</Value>
+                  <Action>SkipThisValidationTechnicalProfile</Action>
+                </Precondition>
+              </Preconditions>
+            </ValidationTechnicalProfile>
+            <!--Update requiresMigration to false attribute only if REST api returns tokenSuccess with 200 status-->
+            <ValidationTechnicalProfile ReferenceId="AAD-UserWritePasswordUsingObjectId">
+              <Preconditions>
+                <Precondition Type="ClaimsExist" ExecuteActionsIf="false">
+                  <Value>tokenSuccess</Value>
+                  <Action>SkipThisValidationTechnicalProfile</Action>
+                </Precondition>
+              </Preconditions>
+            </ValidationTechnicalProfile>
+            <!--Validates email and password with Entra-->
             <ValidationTechnicalProfile ReferenceId="login-NonInteractive" />
           </ValidationTechnicalProfiles>
           <UseTechnicalProfileForSessionManagement ReferenceId="SM-AAD" />

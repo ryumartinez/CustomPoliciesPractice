@@ -10,7 +10,7 @@
 
   <BasePolicy>
     <TenantId>certiversepoc.onmicrosoft.com</TenantId>
-    <PolicyId>B2C_1A_TrustFrameworkExtensions</PolicyId>
+    <PolicyId>B2C_1A_TrustFrameworkBase</PolicyId>
   </BasePolicy>
 
   <RelyingParty>

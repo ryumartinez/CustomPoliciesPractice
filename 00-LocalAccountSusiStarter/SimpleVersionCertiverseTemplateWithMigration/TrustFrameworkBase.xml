@@ -10,14 +10,16 @@
 
   <BuildingBlocks>
     <ClaimsSchema>
-      <!-- The ClaimsSchema is divided into three sections:
+      <!-- The ClaimsSchema is divided into four sections:
            1. Section I lists the minimum claims that are required for the user journeys to work properly.
            2. Section II lists the claims required for query string parameters and other special parameters 
               to be passed to other claims providers, esp. login.microsoftonline.com for authentication. 
               Please do not modify these claims.
            3. Section III lists any additional (optional) claims that can be collected from the user, stored 
               in the directory and sent in tokens during sign in. Add new claims to be collected from the user 
-              and/or sent in the token in Section III. -->
+              and/or sent in the token in Section III.
+           4. Section IV lists claims needed for seamless migration sign in. -->
+
 
       <!-- NOTE: The claims schema contains restrictions on certain claims such as passwords and usernames. 
            The trust framework policy treats Azure AD as any other claims provider and all its restrictions 
@@ -280,6 +282,26 @@
         <UserHelpText>Your given name (also known as first name).</UserHelpText>
         <UserInputType>TextBox</UserInputType>
       </ClaimType>
+
+      <!--SECTION IV: Migration claims-->
+      <ClaimType Id="extension_requiresMigration">
+        <DisplayName>Requires Migration</DisplayName>
+        <DataType>boolean</DataType>
+      </ClaimType>
+
+      <ClaimType Id="tokenSuccess">
+        <DisplayName>tokenSuccess</DisplayName>
+        <DataType>boolean</DataType>
+        <AdminHelpText>tokenSuccess</AdminHelpText>
+        <UserHelpText>tokenSuccess</UserHelpText>
+      </ClaimType>
+
+      <ClaimType Id="migrationRequired">
+        <DisplayName>migrationRequired</DisplayName>
+        <DataType>boolean</DataType>
+        <AdminHelpText>migrationRequired</AdminHelpText>
+        <UserHelpText>migrationRequired</UserHelpText>
+      </ClaimType>
     </ClaimsSchema>
 
     <ClaimsTransformations>
@@ -504,6 +526,8 @@
         <!--Read using email-->
         <TechnicalProfile Id="AAD-UserReadUsingEmailAddress">
           <Metadata>
+            <Item Key="ClientId">c3a79a9b-60a7-4056-afa2-a553ce5ebb7d</Item>
+            <Item Key="ApplicationObjectId">1cf91709-e0fe-4c31-b96c-e225a8063960</Item>
             <Item Key="Operation">Read</Item>
             <Item Key="RaiseErrorIfClaimsPrincipalDoesNotExist">true</Item>
           </Metadata>
@@ -522,6 +546,7 @@
             <OutputClaim ClaimTypeReferenceId="accountEnabled" />
             <OutputClaim ClaimTypeReferenceId="otherMails" />
             <OutputClaim ClaimTypeReferenceId="signInNames.emailAddress" />
+            <OutputClaim ClaimTypeReferenceId="extension_requiresMigration"/>
           </OutputClaims>
           <OutputClaimsTransformations>
             <OutputClaimsTransformation ReferenceId="AssertAccountEnabledIsTrue" />
@@ -565,6 +590,8 @@
         <!-- The following technical profile is used to read data after user authenticates. (Read using user id) -->
         <TechnicalProfile Id="AAD-UserReadUsingObjectId">
           <Metadata>
+            <Item Key="ClientId">c3a79a9b-60a7-4056-afa2-a553ce5ebb7d</Item>
+            <Item Key="ApplicationObjectId">1cf91709-e0fe-4c31-b96c-e225a8063960</Item>
             <Item Key="Operation">Read</Item>
             <Item Key="RaiseErrorIfClaimsPrincipalDoesNotExist">true</Item>
           </Metadata>
@@ -579,6 +606,7 @@
             <OutputClaim ClaimTypeReferenceId="displayName" />
             <OutputClaim ClaimTypeReferenceId="otherMails" />
             <OutputClaim ClaimTypeReferenceId="givenName" />
+            <OutputClaim ClaimTypeReferenceId="extension_requiresMigration"/>
           </OutputClaims>
           <IncludeTechnicalProfile ReferenceId="AAD-Common" />
         </TechnicalProfile>

@@ -455,6 +455,7 @@
     <ClaimsProvider>
       <DisplayName>Azure Active Directory</DisplayName>
       <TechnicalProfiles>
+        <!--AAD Common-->
         <TechnicalProfile Id="AAD-Common">
           <DisplayName>Azure Active Directory</DisplayName>
           <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.AzureActiveDirectoryProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
@@ -465,7 +466,7 @@
           <IncludeInSso>false</IncludeInSso>
           <UseTechnicalProfileForSessionManagement ReferenceId="SM-Noop" />
         </TechnicalProfile>
-        <!-- Technical profiles for local accounts -->
+        <!-- Write using email -->
         <TechnicalProfile Id="AAD-UserWriteUsingLogonEmail">
           <Metadata>
             <Item Key="Operation">Write</Item>
@@ -495,6 +496,7 @@
           <IncludeTechnicalProfile ReferenceId="AAD-Common" />
           <UseTechnicalProfileForSessionManagement ReferenceId="SM-AAD" />
         </TechnicalProfile>
+        <!--Read using email-->
         <TechnicalProfile Id="AAD-UserReadUsingEmailAddress">
           <Metadata>
             <Item Key="Operation">Read</Item>
@@ -521,6 +523,7 @@
           </OutputClaimsTransformations>
           <IncludeTechnicalProfile ReferenceId="AAD-Common" />
         </TechnicalProfile>
+        <!--Write password using user id-->
         <TechnicalProfile Id="AAD-UserWritePasswordUsingObjectId">
           <Metadata>
             <Item Key="Operation">Write</Item>
@@ -537,7 +540,7 @@
           </PersistedClaims>
           <IncludeTechnicalProfile ReferenceId="AAD-Common" />
         </TechnicalProfile>
-        <!-- Technical profiles for updating user record using objectId -->
+        <!--Write profile using user id-->
         <TechnicalProfile Id="AAD-UserWriteProfileUsingObjectId">
           <Metadata>
             <Item Key="Operation">Write</Item>
@@ -554,7 +557,7 @@
           </PersistedClaims>
           <IncludeTechnicalProfile ReferenceId="AAD-Common" />
         </TechnicalProfile>
-        <!-- The following technical profile is used to read data after user authenticates. -->
+        <!-- The following technical profile is used to read data after user authenticates. (Read using user id) -->
         <TechnicalProfile Id="AAD-UserReadUsingObjectId">
           <Metadata>
             <Item Key="Operation">Read</Item>
@@ -574,6 +577,7 @@
           </OutputClaims>
           <IncludeTechnicalProfile ReferenceId="AAD-Common" />
         </TechnicalProfile>
+
       </TechnicalProfiles>
     </ClaimsProvider>
     <!--SelfAsserted-ProfileUpdate (Profile update)-->
@@ -600,11 +604,11 @@
         </TechnicalProfile>
       </TechnicalProfiles>
     </ClaimsProvider>
-    <!--LocalAccountSignUpWithLogonEmail (User registration with email and password)-->
+    <!--Form Logic-->
     <ClaimsProvider>
       <DisplayName>Local Account</DisplayName>
       <TechnicalProfiles>
-
+        <!--Sign Up Form Submit-->
         <TechnicalProfile Id="LocalAccountSignUpWithLogonEmail">
           <DisplayName>Email signup</DisplayName>
           <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
@@ -634,7 +638,7 @@
           <UseTechnicalProfileForSessionManagement ReferenceId="SM-AAD" />
         </TechnicalProfile>
 
-        <!-- This technical profile uses a validation technical profile to authenticate the user. -->
+        <!--Sign In Form Submit-->
         <TechnicalProfile Id="SelfAsserted-LocalAccountSignin-Email">
           <DisplayName>Local Account Signin</DisplayName>
           <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
@@ -661,8 +665,7 @@
           <UseTechnicalProfileForSessionManagement ReferenceId="SM-AAD" />
         </TechnicalProfile>
 
-        <!-- This technical profile forces the user to verify the email address that they provide on the UI. Only after email is verified, the user account is
-        read from the directory. -->
+        <!-- Email Verification Form for password reset-->
         <TechnicalProfile Id="LocalAccountDiscoveryUsingEmailAddress">
           <DisplayName>Reset password using email address</DisplayName>
           <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
@@ -686,6 +689,7 @@
           </ValidationTechnicalProfiles>
         </TechnicalProfile>
 
+        <!--Password Reset Form-->
         <TechnicalProfile Id="LocalAccountWritePasswordUsingObjectId">
           <DisplayName>Change password (username)</DisplayName>
           <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
@@ -813,7 +817,7 @@
   <UserJourneys>
     <UserJourney Id="SignUpOrSignIn">
       <OrchestrationSteps>
-
+        <!--Sign In Logic-->
         <OrchestrationStep Order="1" Type="CombinedSignInAndSignUp" ContentDefinitionReferenceId="api.signuporsignin">
           <ClaimsProviderSelections>
             <ClaimsProviderSelection ValidationClaimsExchangeId="LocalAccountSigninEmailExchange" />
@@ -822,7 +826,7 @@
             <ClaimsExchange Id="LocalAccountSigninEmailExchange" TechnicalProfileReferenceId="SelfAsserted-LocalAccountSignin-Email" />
           </ClaimsExchanges>
         </OrchestrationStep>
-
+        <!--Sign Up Logic-->
         <OrchestrationStep Order="2" Type="ClaimsExchange">
           <Preconditions>
             <Precondition Type="ClaimsExist" ExecuteActionsIf="true">

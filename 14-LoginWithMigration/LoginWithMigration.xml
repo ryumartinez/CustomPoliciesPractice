@@ -94,7 +94,7 @@
 
         <ContentDefinitions>
             <ContentDefinition Id="api.localaccountsignin">
-                <LoadUri>~/tenant/templates/AzureBlue/selfAsserted.cshtml</LoadUri>
+                <LoadUri>https://certiversepoc.blob.core.windows.net/auth-template/custom-sign-up.html</LoadUri>
                 <RecoveryUri>~/common/default_page_error.html</RecoveryUri>
                 <DataUri>urn:com:microsoft:aad:b2c:elements:contract:selfasserted:2.1.7</DataUri>
                 <Metadata>
@@ -114,6 +114,8 @@
                     <Description>Presents the user with a form to log in with</Description>
                     <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
                     <Metadata>
+                        <Item Key="setting.showCancelButton">false</Item>
+                        <Item Key="EnforceEmailVerification">false</Item>
                         <Item Key="ContentDefinitionReferenceId">api.localaccountsignin</Item>
                     </Metadata>
                     <InputClaims>

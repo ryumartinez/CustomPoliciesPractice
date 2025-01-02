@@ -412,12 +412,8 @@
     </ContentDefinitions>
   </BuildingBlocks>
 
-  <!--
-        A list of all the claim providers that can be used in the technical policies. If a claims provider is not listed 
-        in this section, then it cannot be used in a technical policy.
-    -->
+  <!--User CRUD operations-->
   <ClaimsProviders>
-
     <ClaimsProvider>
       <DisplayName>Local Account SignIn</DisplayName>
       <TechnicalProfiles>
@@ -455,26 +451,21 @@
         </TechnicalProfile>
       </TechnicalProfiles>
     </ClaimsProvider>
-
+    <!--AAD technical profiles (Read and Write user data stored in Entra)-->
     <ClaimsProvider>
       <DisplayName>Azure Active Directory</DisplayName>
       <TechnicalProfiles>
-
         <TechnicalProfile Id="AAD-Common">
           <DisplayName>Azure Active Directory</DisplayName>
           <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.AzureActiveDirectoryProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-
           <CryptographicKeys>
             <Key Id="issuer_secret" StorageReferenceId="B2C_1A_TokenSigningKeyContainer" />
           </CryptographicKeys>
-
           <!-- We need this here to suppress the SelfAsserted provider from invoking SSO on validation profiles. -->
           <IncludeInSso>false</IncludeInSso>
           <UseTechnicalProfileForSessionManagement ReferenceId="SM-Noop" />
         </TechnicalProfile>
-
         <!-- Technical profiles for local accounts -->
-
         <TechnicalProfile Id="AAD-UserWriteUsingLogonEmail">
           <Metadata>
             <Item Key="Operation">Write</Item>
@@ -504,7 +495,6 @@
           <IncludeTechnicalProfile ReferenceId="AAD-Common" />
           <UseTechnicalProfileForSessionManagement ReferenceId="SM-AAD" />
         </TechnicalProfile>
-
         <TechnicalProfile Id="AAD-UserReadUsingEmailAddress">
           <Metadata>
             <Item Key="Operation">Read</Item>
@@ -531,7 +521,6 @@
           </OutputClaimsTransformations>
           <IncludeTechnicalProfile ReferenceId="AAD-Common" />
         </TechnicalProfile>
-
         <TechnicalProfile Id="AAD-UserWritePasswordUsingObjectId">
           <Metadata>
             <Item Key="Operation">Write</Item>
@@ -548,9 +537,7 @@
           </PersistedClaims>
           <IncludeTechnicalProfile ReferenceId="AAD-Common" />
         </TechnicalProfile>
-
         <!-- Technical profiles for updating user record using objectId -->
-
         <TechnicalProfile Id="AAD-UserWriteProfileUsingObjectId">
           <Metadata>
             <Item Key="Operation">Write</Item>
@@ -567,7 +554,6 @@
           </PersistedClaims>
           <IncludeTechnicalProfile ReferenceId="AAD-Common" />
         </TechnicalProfile>
-
         <!-- The following technical profile is used to read data after user authenticates. -->
         <TechnicalProfile Id="AAD-UserReadUsingObjectId">
           <Metadata>
@@ -588,14 +574,12 @@
           </OutputClaims>
           <IncludeTechnicalProfile ReferenceId="AAD-Common" />
         </TechnicalProfile>
-
       </TechnicalProfiles>
     </ClaimsProvider>
-
+    <!--SelfAsserted-ProfileUpdate (Profile update)-->
     <ClaimsProvider>
       <DisplayName>Self Asserted</DisplayName>
       <TechnicalProfiles>
-
         <TechnicalProfile Id="SelfAsserted-ProfileUpdate">
           <DisplayName>User ID signup</DisplayName>
           <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
@@ -616,7 +600,7 @@
         </TechnicalProfile>
       </TechnicalProfiles>
     </ClaimsProvider>
-
+    <!--LocalAccountSignUpWithLogonEmail (User registration with email and password)-->
     <ClaimsProvider>
       <DisplayName>Local Account</DisplayName>
       <TechnicalProfiles>
@@ -655,6 +639,7 @@
           <DisplayName>Local Account Signin</DisplayName>
           <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
           <Metadata>
+            <Item Key="setting.forgotPasswordLinkLocation">AfterInput</Item>
             <Item Key="SignUpTarget">SignUpWithLogonEmailExchange</Item>
             <Item Key="setting.operatingMode">Email</Item>
             <Item Key="ContentDefinitionReferenceId">api.localaccountsignin</Item>
@@ -724,7 +709,7 @@
 
       </TechnicalProfiles>
     </ClaimsProvider>
-
+    <!--Session Management-->
     <ClaimsProvider>
       <DisplayName>Session Management</DisplayName>
       <TechnicalProfiles>
@@ -756,7 +741,7 @@
         </TechnicalProfile>
       </TechnicalProfiles>
     </ClaimsProvider>
-
+    <!--Trustframework Policy Engine TechnicalProfiles-->
     <ClaimsProvider>
       <DisplayName>Trustframework Policy Engine TechnicalProfiles</DisplayName>
       <TechnicalProfiles>
@@ -769,7 +754,7 @@
         </TechnicalProfile>
       </TechnicalProfiles>
     </ClaimsProvider>
-
+    <!--Token Issuer-->
     <ClaimsProvider>
       <DisplayName>Token Issuer</DisplayName>
       <TechnicalProfiles>
@@ -790,40 +775,39 @@
         </TechnicalProfile>
       </TechnicalProfiles>
     </ClaimsProvider>
-    <!--claims provider for refresh token revocation-->
-  <ClaimsProvider>
-    <DisplayName>Refresh token journey</DisplayName>
-    <TechnicalProfiles>
-      <TechnicalProfile Id="RefreshTokenReadAndSetup">
-        <DisplayName>Trustframework Policy Engine Refresh Token Setup Technical Profile</DisplayName>
-        <Protocol Name="None" />
-        <OutputClaims>
-          <OutputClaim ClaimTypeReferenceId="objectId" />
-          <OutputClaim ClaimTypeReferenceId="refreshTokenIssuedOnDateTime" />
-           <!--Requirement: Claims that you return in the relying party technical profile output claims
-            that are not stored in Azure AD B2C, must be added to the output claims collection here-->
-          <!--
-          
-          <OutputClaim ClaimTypeReferenceId="RESTAPIclaim1" />
-          <OutputClaim ClaimTypeReferenceId="IDPclaim1" />
-           -->
-        </OutputClaims>
-      </TechnicalProfile>
+    <!--Refresh token revocation-->
+    <ClaimsProvider>
+      <DisplayName>Refresh token journey</DisplayName>
+      <TechnicalProfiles>
+        <TechnicalProfile Id="RefreshTokenReadAndSetup">
+          <DisplayName>Trustframework Policy Engine Refresh Token Setup Technical Profile</DisplayName>
+          <Protocol Name="None" />
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="objectId" />
+            <OutputClaim ClaimTypeReferenceId="refreshTokenIssuedOnDateTime" />
+             <!--Requirement: Claims that you return in the relying party technical profile output claims
+              that are not stored in Azure AD B2C, must be added to the output claims collection here-->
+            <!--
+
+            <OutputClaim ClaimTypeReferenceId="RESTAPIclaim1" />
+            <OutputClaim ClaimTypeReferenceId="IDPclaim1" />
+             -->
+          </OutputClaims>
+        </TechnicalProfile>
 
 
-      <TechnicalProfile Id="AAD-UserReadUsingObjectId-CheckRefreshTokenDate">
-        <OutputClaims>
-          <OutputClaim ClaimTypeReferenceId="refreshTokensValidFromDateTime" />
-          <OutputClaim ClaimTypeReferenceId="displayName" />
-        </OutputClaims>
-        <OutputClaimsTransformations>
-          <OutputClaimsTransformation ReferenceId="AssertRefreshTokenIssuedLaterThanValidFromDate" />
-        </OutputClaimsTransformations>
-        <IncludeTechnicalProfile ReferenceId="AAD-UserReadUsingObjectId" />
-      </TechnicalProfile>
-    </TechnicalProfiles>
-  </ClaimsProvider>
-
+        <TechnicalProfile Id="AAD-UserReadUsingObjectId-CheckRefreshTokenDate">
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="refreshTokensValidFromDateTime" />
+            <OutputClaim ClaimTypeReferenceId="displayName" />
+          </OutputClaims>
+          <OutputClaimsTransformations>
+            <OutputClaimsTransformation ReferenceId="AssertRefreshTokenIssuedLaterThanValidFromDate" />
+          </OutputClaimsTransformations>
+          <IncludeTechnicalProfile ReferenceId="AAD-UserReadUsingObjectId" />
+        </TechnicalProfile>
+      </TechnicalProfiles>
+    </ClaimsProvider>
   </ClaimsProviders>
 
   <UserJourneys>

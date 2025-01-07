@@ -1,11 +1,10 @@
-
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <TrustFrameworkPolicy
   xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06"
   PolicySchemaVersion="0.3.0.0"
-  TenantId="projectcenterdev.onmicrosoft.com"
+  TenantId="certiversepoc.onmicrosoft.com"
   PolicyId="B2C_1A_Base"
-  PublicPolicyUri="http://projectcenterdev.onmicrosoft.com/B2C_1A_Base">
+  PublicPolicyUri="http://certiversepoc.onmicrosoft.com/B2C_1A_Base">
   <BuildingBlocks>
     <ClaimsSchema>
       <ClaimType Id="objectId">
@@ -78,7 +77,7 @@
     </ClaimsSchema>
 
     <ContentDefinitions>
-      <ContentDefinition Id="api.localaccountsignin">
+      <ContentDefinition Id="logincontentdefinition">
         <LoadUri>~/tenant/templates/AzureBlue/selfAsserted.cshtml</LoadUri>
         <RecoveryUri>~/common/default_page_error.html</RecoveryUri>
         <DataUri>urn:com:microsoft:aad:b2c:elements:contract:selfasserted:2.1.7</DataUri>
@@ -146,7 +145,7 @@
           <Description>Presents the user with a form to log in with</Description>
           <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
           <Metadata>
-            <Item Key="ContentDefinitionReferenceId">api.localaccountsignin</Item>
+            <Item Key="ContentDefinitionReferenceId">logincontentdefinition</Item>
           </Metadata>
           <InputClaims>
             <InputClaim ClaimTypeReferenceId="signInName" />

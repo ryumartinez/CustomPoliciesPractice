@@ -14,6 +14,37 @@
 
   <BuildingBlocks>
     <ClaimsSchema>
+      <ClaimType Id="objectId">
+        <DisplayName>User ID</DisplayName>
+        <DataType>string</DataType>
+        <DefaultPartnerClaimTypes>
+          <Protocol Name="OpenIdConnect" PartnerClaimType="oid" />
+        </DefaultPartnerClaimTypes>
+      </ClaimType>
+
+      <ClaimType Id="signInName">
+        <DisplayName>Email</DisplayName>
+        <DataType>string</DataType>
+        <UserHelpText>Email</UserHelpText>
+        <UserInputType>TextBox</UserInputType>
+      </ClaimType>
+
+      <ClaimType Id="sub">
+        <DisplayName>Subject</DisplayName>
+        <DataType>string</DataType>
+        <DefaultPartnerClaimTypes>
+          <Protocol Name="OpenIdConnect" PartnerClaimType="sub" />
+        </DefaultPartnerClaimTypes>
+      </ClaimType>
+
+      <ClaimType Id="tenantId">
+        <DisplayName>Tenant ID</DisplayName>
+        <DataType>string</DataType>
+        <DefaultPartnerClaimTypes>
+          <Protocol Name="OpenIdConnect" PartnerClaimType="tid" />
+        </DefaultPartnerClaimTypes>
+      </ClaimType>
+
       <ClaimType Id="authenticationSource">
         <DisplayName>Authentication Source</DisplayName>
         <DataType>string</DataType>
@@ -54,7 +85,7 @@
 
     <ContentDefinitions>
       <ContentDefinition Id="api.localaccountsignin">
-        <LoadUri>https://certiversepoc.blob.core.windows.net/auth-template/custom-sign-up.html</LoadUri>
+        <LoadUri>~/tenant/templates/AzureBlue/selfAsserted.cshtml</LoadUri>
         <RecoveryUri>~/common/default_page_error.html</RecoveryUri>
         <DataUri>urn:com:microsoft:aad:b2c:elements:contract:selfasserted:2.1.7</DataUri>
         <Metadata>
@@ -66,6 +97,54 @@
 
   <ClaimsProviders>
     <ClaimsProvider>
+      <DisplayName>Trustframework Policy Engine TechnicalProfiles</DisplayName>
+      <TechnicalProfiles>
+        <TechnicalProfile Id="TpEngine_c3bd4fe2-1775-4013-b91d-35f16d377d13">
+          <DisplayName>Trustframework Policy Engine Default Technical Profile</DisplayName>
+          <Protocol Name="None" />
+          <Metadata>
+            <Item Key="url">{service:te}</Item>
+          </Metadata>
+        </TechnicalProfile>
+      </TechnicalProfiles>
+    </ClaimsProvider>
+
+    <ClaimsProvider>
+      <DisplayName>SSO Session Management</DisplayName>
+      <TechnicalProfiles>
+        <TechnicalProfile Id="SSO-None">
+          <DisplayName>No Session Management</DisplayName>
+          <Protocol Name="Proprietary" Handler="Web.TPEngine.SSO.NoopSSOSessionProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+        </TechnicalProfile>
+
+        <TechnicalProfile Id="SSO-Default">
+          <DisplayName>Default SSO Session Management Provider</DisplayName>
+          <Description>Session management using the Azure AD B2C internal session provider</Description>
+          <Protocol Name="Proprietary" Handler="Web.TPEngine.SSO.DefaultSSOSessionProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+        </TechnicalProfile>
+      </TechnicalProfiles>
+    </ClaimsProvider>
+
+    <ClaimsProvider>
+      <DisplayName>Token Issuers</DisplayName>
+      <TechnicalProfiles>
+        <TechnicalProfile Id="JWTIssuer">
+          <DisplayName>JWT Issuer</DisplayName>
+          <Description>Generates and issues the JSON web token containing the user's identity information</Description>
+          <Protocol Name="OpenIdConnect" />
+          <OutputTokenFormat>JWT</OutputTokenFormat>
+          <Metadata>
+            <Item Key="issuer_refresh_token_user_identity_claim_type">objectId</Item>
+          </Metadata>
+          <CryptographicKeys>
+            <Key Id="issuer_secret" StorageReferenceId="B2C_1A_TokenSigningKeyContainer" />
+            <Key Id="issuer_refresh_token_key" StorageReferenceId="B2C_1A_TokenEncryptionKeyContainer" />
+          </CryptographicKeys>
+        </TechnicalProfile>
+      </TechnicalProfiles>
+    </ClaimsProvider>
+
+    <ClaimsProvider>
       <DisplayName>Local User</DisplayName>
       <TechnicalProfiles>
         <TechnicalProfile Id="ShowLogInForm">
@@ -75,9 +154,6 @@
           <Metadata>
             <Item Key="ContentDefinitionReferenceId">api.localaccountsignin</Item>
           </Metadata>
-          <InputClaims>
-            <InputClaim ClaimTypeReferenceId="signInName" />
-          </InputClaims>
           <OutputClaims>
             <OutputClaim ClaimTypeReferenceId="signInName" Required="true" />
             <OutputClaim ClaimTypeReferenceId="password" Required="true" />
@@ -146,7 +222,6 @@
         ClientEnabled="true"
         ServerEnabled="true"
         TelemetryVersion="1.0.0" />
-      <ScriptExecution>Allow</ScriptExecution>
     </UserJourneyBehaviors>
     <TechnicalProfile Id="PolicyProfile">
       <DisplayName>Log In</DisplayName>

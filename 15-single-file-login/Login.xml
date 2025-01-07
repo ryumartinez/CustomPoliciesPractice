@@ -1,17 +1,11 @@
+
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <TrustFrameworkPolicy
   xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06"
   PolicySchemaVersion="0.3.0.0"
-  TenantId="certiversepoc.onmicrosoft.com"
-  PolicyId="B2C_1A_LogIn"
-  PublicPolicyUri="http://certiversepoc.onmicrosoft.com/B2C_1A_LogIn"
-  DeploymentMode="Development"
-  UserJourneyRecorderEndpoint="urn:journeyrecorder:applicationinsights">
-  <BasePolicy>
-    <TenantId>certiversepoc.onmicrosoft.com</TenantId>
-    <PolicyId>B2C_1A_Base</PolicyId>
-  </BasePolicy>
-
+  TenantId="projectcenterdev.onmicrosoft.com"
+  PolicyId="B2C_1A_Base"
+  PublicPolicyUri="http://projectcenterdev.onmicrosoft.com/B2C_1A_Base">
   <BuildingBlocks>
     <ClaimsSchema>
       <ClaimType Id="objectId">
@@ -23,9 +17,9 @@
       </ClaimType>
 
       <ClaimType Id="signInName">
-        <DisplayName>Email</DisplayName>
+        <DisplayName>Username</DisplayName>
         <DataType>string</DataType>
-        <UserHelpText>Email</UserHelpText>
+        <UserHelpText>Username</UserHelpText>
         <UserInputType>TextBox</UserInputType>
       </ClaimType>
 
@@ -154,6 +148,9 @@
           <Metadata>
             <Item Key="ContentDefinitionReferenceId">api.localaccountsignin</Item>
           </Metadata>
+          <InputClaims>
+            <InputClaim ClaimTypeReferenceId="signInName" />
+          </InputClaims>
           <OutputClaims>
             <OutputClaim ClaimTypeReferenceId="signInName" Required="true" />
             <OutputClaim ClaimTypeReferenceId="password" Required="true" />
@@ -177,8 +174,10 @@
             <Item Key="scope">email openid</Item>
             <Item Key="UsePolicyInRedirectUri">false</Item>
             <Item Key="HttpBinding">POST</Item>
-            <Item Key="client_id">57a18278-6e97-4c78-b502-bfe7e4717ed5</Item>  <!--ProxyIdentityFramework clientId here-->
-            <Item Key="IdTokenAudience">06c6404f-412c-4651-93aa-9eb897427f84</Item>  <!--IdentityFramework clientId here-->
+            <!--ProxyIdentityFramework clientId here-->
+            <Item Key="client_id">57a18278-6e97-4c78-b502-bfe7e4717ed5</Item>
+            <!--IdentityFramework clientId here-->
+            <Item Key="IdTokenAudience">06c6404f-412c-4651-93aa-9eb897427f84</Item>
           </Metadata>
           <InputClaims>
             <InputClaim ClaimTypeReferenceId="signInName" PartnerClaimType="username" Required="true" />
@@ -186,8 +185,10 @@
             <InputClaim ClaimTypeReferenceId="grant_type" DefaultValue="password" AlwaysUseDefaultValue="true" />
             <InputClaim ClaimTypeReferenceId="scope" DefaultValue="openid" AlwaysUseDefaultValue="true" />
             <InputClaim ClaimTypeReferenceId="nca" PartnerClaimType="nca" DefaultValue="1" />
-            <InputClaim ClaimTypeReferenceId="client_id" DefaultValue="57a18278-6e97-4c78-b502-bfe7e4717ed5"/> <!--ProxyIdentityFramework clientId here-->
-            <InputClaim ClaimTypeReferenceId="resource_id" PartnerClaimType="resource" DefaultValue="06c6404f-412c-4651-93aa-9eb897427f84" /> <!--IdentityFramework clientId here-->
+            <!--ProxyIdentityFramework clientId here-->
+            <InputClaim ClaimTypeReferenceId="client_id" DefaultValue="57a18278-6e97-4c78-b502-bfe7e4717ed5"/>
+            <!--IdentityFramework clientId here-->
+            <InputClaim ClaimTypeReferenceId="resource_id" PartnerClaimType="resource" DefaultValue="06c6404f-412c-4651-93aa-9eb897427f84" />
           </InputClaims>
           <OutputClaims>
             <OutputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="oid" />

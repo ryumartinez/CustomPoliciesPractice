@@ -3,8 +3,8 @@
   xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06"
   PolicySchemaVersion="0.3.0.0"
   TenantId="certiversepoc.onmicrosoft.com"
-  PolicyId="B2C_1A_Base"
-  PublicPolicyUri="http://certiversepoc.onmicrosoft.com/B2C_1A_Base">
+  PolicyId="B2C_1A_SingleFileLogin"
+  PublicPolicyUri="http://certiversepoc.onmicrosoft.com/B2C_1A_SingleFileLogin">
   <BuildingBlocks>
     <ClaimsSchema>
       <ClaimType Id="objectId">
@@ -78,7 +78,7 @@
 
     <ContentDefinitions>
       <ContentDefinition Id="logincontentdefinition">
-        <LoadUri>~/tenant/templates/AzureBlue/selfAsserted.cshtml</LoadUri>
+        <LoadUri>https://certiversepoc.blob.core.windows.net/auth-template/custom-sign-up.html</LoadUri>
         <RecoveryUri>~/common/default_page_error.html</RecoveryUri>
         <DataUri>urn:com:microsoft:aad:b2c:elements:contract:selfasserted:2.1.7</DataUri>
         <Metadata>
@@ -162,9 +162,6 @@
           <Metadata>
             <Item Key="ContentDefinitionReferenceId">logincontentdefinition</Item>
           </Metadata>
-          <InputClaims>
-            <InputClaim ClaimTypeReferenceId="signInName" />
-          </InputClaims>
           <OutputClaims>
             <OutputClaim ClaimTypeReferenceId="signInName" Required="true" />
             <OutputClaim ClaimTypeReferenceId="password" Required="true" />

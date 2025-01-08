@@ -76,6 +76,27 @@
         <DisplayName>scope</DisplayName>
         <DataType>string</DataType>
       </ClaimType>
+
+      <!--Variables required for the migration-->
+
+      <ClaimType Id="extension_requiresMigration">
+        <DisplayName>Requires Migration</DisplayName>
+        <DataType>boolean</DataType>
+      </ClaimType>
+
+      <ClaimType Id="tokenSuccess">
+        <DisplayName>tokenSuccess</DisplayName>
+        <DataType>boolean</DataType>
+        <AdminHelpText>tokenSuccess</AdminHelpText>
+        <UserHelpText>tokenSuccess</UserHelpText>
+      </ClaimType>
+
+      <ClaimType Id="migrationRequired">
+        <DisplayName>migrationRequired</DisplayName>
+        <DataType>boolean</DataType>
+        <AdminHelpText>migrationRequired</AdminHelpText>
+        <UserHelpText>migrationRequired</UserHelpText>
+      </ClaimType>
     </ClaimsSchema>
 
     <ContentDefinitions>
@@ -104,6 +125,7 @@
       </TechnicalProfiles>
     </ClaimsProvider>
 
+    <!--SSO Management-->
     <ClaimsProvider>
       <DisplayName>SSO Session Management</DisplayName>
       <TechnicalProfiles>
@@ -128,6 +150,7 @@
       </TechnicalProfiles>
     </ClaimsProvider>
 
+    <!--JWT issuer-->
     <ClaimsProvider>
       <DisplayName>Token Issuers</DisplayName>
       <TechnicalProfiles>
@@ -151,6 +174,7 @@
       </TechnicalProfiles>
     </ClaimsProvider>
 
+    <!--Login Form display and openId authentication-->
     <ClaimsProvider>
       <DisplayName>Local User</DisplayName>
       <TechnicalProfiles>
@@ -241,6 +265,107 @@
               ClaimTypeReferenceId="authenticationSource"
               DefaultValue="localAccountAuthentication"
             />
+          </OutputClaims>
+        </TechnicalProfile>
+      </TechnicalProfiles>
+    </ClaimsProvider>
+
+    <!--AAD data collector-->
+    <ClaimsProvider>
+      <DisplayName>AAD data collector</DisplayName>
+      <TechnicalProfiles>
+        <TechnicalProfile Id="AAD-Common">
+          <DisplayName>Azure Active Directory</DisplayName>
+          <Protocol Name="Proprietary"
+                    Handler="Web.TPEngine.Providers.AzureActiveDirectoryProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"/>
+
+          <CryptographicKeys>
+            <Key Id="issuer_secret" StorageReferenceId="B2C_1A_TokenSigningKeyContainer"/>
+          </CryptographicKeys>
+
+          <!-- We need this here to suppress the SelfAsserted provider from invoking SSO on validation profiles. -->
+          <IncludeInSso>false</IncludeInSso>
+        </TechnicalProfile>
+
+        <TechnicalProfile Id="AAD-UserReadUsingEmailAddress">
+          <Metadata>
+            <Item Key="ClientId">c3a79a9b-60a7-4056-afa2-a553ce5ebb7d</Item>
+            <Item Key="ApplicationObjectId">1cf91709-e0fe-4c31-b96c-e225a8063960</Item>
+            <Item Key="Operation">Read</Item>
+            <Item Key="RaiseErrorIfClaimsPrincipalDoesNotExist">true</Item>
+            <Item Key="UserMessageIfClaimsPrincipalDoesNotExist">An account could not be found for the provided user
+              ID.
+            </Item>
+          </Metadata>
+          <IncludeInSso>false</IncludeInSso>
+          <InputClaims>
+            <InputClaim ClaimTypeReferenceId="email" PartnerClaimType="signInNames.emailAddress" Required="true"/>
+          </InputClaims>
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="objectId"/>
+            <OutputClaim ClaimTypeReferenceId="displayName"/>
+            <OutputClaim ClaimTypeReferenceId="userPrincipalName"/>
+            <OutputClaim ClaimTypeReferenceId="country"/>
+            <OutputClaim ClaimTypeReferenceId="extension_requiresMigration"/>
+          </OutputClaims>
+          <IncludeTechnicalProfile ReferenceId="AAD-Common"/>
+        </TechnicalProfile>
+
+        <!--Write microsoft entra data -->
+        <TechnicalProfile Id="AAD-UserWriteProfileUsingObjectId">
+          <Metadata>
+            <Item Key="ClientId">c3a79a9b-60a7-4056-afa2-a553ce5ebb7d</Item>
+            <Item Key="ApplicationObjectId">1cf91709-e0fe-4c31-b96c-e225a8063960</Item>
+            <Item Key="Operation">Write</Item>
+            <Item Key="RaiseErrorIfClaimsPrincipalDoesNotExist">false</Item>
+          </Metadata>
+          <IncludeInSso>false</IncludeInSso>
+          <InputClaims>
+            <InputClaim ClaimTypeReferenceId="objectId" Required="true"/>
+          </InputClaims>
+          <PersistedClaims>
+            <PersistedClaim ClaimTypeReferenceId="objectId"/>
+            <PersistedClaim ClaimTypeReferenceId="userPrincipalName"/>
+            <PersistedClaim ClaimTypeReferenceId="extension_requiresMigration" DefaultValue="false"
+                            AlwaysUseDefaultValue="true" OverwriteIfExists="true"/>
+            <PersistedClaim ClaimTypeReferenceId="password" OverwriteIfExists="true"/>
+            <PersistedClaim ClaimTypeReferenceId="passwordPolicies"
+                            DefaultValue="DisablePasswordExpiration, DisableStrongPassword"
+                            AlwaysUseDefaultValue="true"/>
+            <PersistedClaim ClaimTypeReferenceId="displayName"/>
+          </PersistedClaims>
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="objectId"/>
+            <OutputClaim ClaimTypeReferenceId="userPrincipalName"/>
+            <OutputClaim ClaimTypeReferenceId="country"/>
+            <OutputClaim ClaimTypeReferenceId="displayName"/>
+          </OutputClaims>
+          <IncludeTechnicalProfile ReferenceId="AAD-Common"/>
+        </TechnicalProfile>
+      </TechnicalProfiles>
+    </ClaimsProvider>
+
+    <!--Rest api data collector-->
+    <ClaimsProvider>
+      <DisplayName>REST API to communicate with Legacy IdP</DisplayName>
+      <TechnicalProfiles>
+        <TechnicalProfile Id="ValidationWithOAuth">
+          <DisplayName>REST API call to communicate with Legacy IdP</DisplayName>
+          <Protocol Name="Proprietary"
+                    Handler="Web.TPEngine.Providers.RestfulProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"/>
+          <Metadata>
+            <Item Key="ServiceUrl">https://auth020241224085700.azurewebsites.net/api/identity</Item>
+            <Item Key="AuthenticationType">None</Item>
+            <Item Key="SendClaimsIn">Body</Item>
+            <Item Key="AllowInsecureAuthInProduction">true</Item>
+          </Metadata>
+          <InputClaims>
+            <InputClaim ClaimTypeReferenceId="email"/>
+            <InputClaim ClaimTypeReferenceId="password" DefaultValue="dsfasdfdas"/>
+          </InputClaims>
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="tokenSuccess" DefaultValue="false"/>
+            <OutputClaim ClaimTypeReferenceId="migrationRequired" DefaultValue="true"/>
           </OutputClaims>
         </TechnicalProfile>
       </TechnicalProfiles>

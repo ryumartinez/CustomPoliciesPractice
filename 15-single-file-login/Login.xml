@@ -8,7 +8,7 @@
   <BuildingBlocks>
     <ClaimsSchema>
       <!--Variables to store data collected from the form-->
-      <ClaimType Id="signInName">
+      <ClaimType Id="email">
         <DisplayName>Email</DisplayName>
         <DataType>string</DataType>
         <UserHelpText>Email</UserHelpText>
@@ -165,11 +165,11 @@
             <Item Key="ContentDefinitionReferenceId">logincontentdefinition</Item>
           </Metadata>
           <DisplayClaims>
-            <DisplayClaim ClaimTypeReferenceId="signInName" Required="true" />
+            <DisplayClaim ClaimTypeReferenceId="email" Required="true" />
             <DisplayClaim ClaimTypeReferenceId="password" Required="true" />
           </DisplayClaims>
           <OutputClaims>
-            <OutputClaim ClaimTypeReferenceId="signInName" Required="true" />
+            <OutputClaim ClaimTypeReferenceId="email" Required="true" />
             <OutputClaim ClaimTypeReferenceId="password" Required="true" />
             <OutputClaim ClaimTypeReferenceId="objectId" />
           </OutputClaims>
@@ -202,7 +202,7 @@
           </Metadata>
           <InputClaims>
             <InputClaim
-              ClaimTypeReferenceId="signInName"
+              ClaimTypeReferenceId="email"
               PartnerClaimType="username"
               Required="true"
             />
@@ -287,7 +287,7 @@
       </Description>
       <Protocol Name="OpenIdConnect" />
       <InputClaims>
-        <InputClaim ClaimTypeReferenceId="signInName" />
+        <InputClaim ClaimTypeReferenceId="email" />
       </InputClaims>
       <OutputClaims>
         <OutputClaim

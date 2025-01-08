@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<TrustFrameworkPolicy
+  xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06"
+  PolicySchemaVersion="0.3.0.0"
+  TenantId="certiversepoc.onmicrosoft.com"
+  PolicyId="B2C_1A_SingleFileLoginWithMigration"
+  PublicPolicyUri="http://certiversepoc.onmicrosoft.com/B2C_1A_SingleFileLoginWithMigration">
+  <BuildingBlocks>
+    <ClaimsSchema>
+      <!--Variables to store data collected from the form-->
+      <ClaimType Id="email">
+        <DisplayName>Email</DisplayName>
+        <DataType>string</DataType>
+        <UserHelpText>Email</UserHelpText>
+        <UserInputType>TextBox</UserInputType>
+      </ClaimType>
+
+      <ClaimType Id="password">
+        <DisplayName>Password</DisplayName>
+        <DataType>string</DataType>
+        <UserHelpText>Password</UserHelpText>
+        <UserInputType>Password</UserInputType>
+      </ClaimType>
+
+      <!--Variables required to make an openId connection-->
+      <ClaimType Id="objectId">
+        <DisplayName>User ID</DisplayName>
+        <DataType>string</DataType>
+        <DefaultPartnerClaimTypes>
+          <Protocol Name="OpenIdConnect" PartnerClaimType="oid" />
+        </DefaultPartnerClaimTypes>
+      </ClaimType>
+
+      <ClaimType Id="sub">
+        <DisplayName>Subject</DisplayName>
+        <DataType>string</DataType>
+        <DefaultPartnerClaimTypes>
+          <Protocol Name="OpenIdConnect" PartnerClaimType="sub" />
+        </DefaultPartnerClaimTypes>
+      </ClaimType>
+
+      <ClaimType Id="tenantId">
+        <DisplayName>Tenant ID</DisplayName>
+        <DataType>string</DataType>
+        <DefaultPartnerClaimTypes>
+          <Protocol Name="OpenIdConnect" PartnerClaimType="tid" />
+        </DefaultPartnerClaimTypes>
+      </ClaimType>
+
+      <ClaimType Id="authenticationSource">
+        <DisplayName>Authentication Source</DisplayName>
+        <DataType>string</DataType>
+      </ClaimType>
+
+      <ClaimType Id="client_id">
+        <DisplayName>client_id</DisplayName>
+        <DataType>string</DataType>
+      </ClaimType>
+
+      <ClaimType Id="grant_type">
+        <DisplayName>grant_type</DisplayName>
+        <DataType>string</DataType>
+      </ClaimType>
+
+      <ClaimType Id="nca">
+        <DisplayName>nca</DisplayName>
+        <DataType>string</DataType>
+      </ClaimType>
+
+      <ClaimType Id="resource_id">
+        <DisplayName>resource_id</DisplayName>
+        <DataType>string</DataType>
+      </ClaimType>
+
+      <ClaimType Id="scope">
+        <DisplayName>scope</DisplayName>
+        <DataType>string</DataType>
+      </ClaimType>
+    </ClaimsSchema>
+
+    <ContentDefinitions>
+      <ContentDefinition Id="logincontentdefinition">
+        <LoadUri>https://certiversepoc.blob.core.windows.net/auth-template/custom-sign-up.html</LoadUri>
+        <RecoveryUri>~/common/default_page_error.html</RecoveryUri>
+        <DataUri>urn:com:microsoft:aad:b2c:elements:contract:selfasserted:2.1.7</DataUri>
+        <Metadata>
+          <Item Key="DisplayName">Log In</Item>
+        </Metadata>
+      </ContentDefinition>
+    </ContentDefinitions>
+  </BuildingBlocks>
+
+  <ClaimsProviders>
+    <ClaimsProvider>
+      <DisplayName>Trustframework Policy Engine TechnicalProfiles</DisplayName>
+      <TechnicalProfiles>
+        <TechnicalProfile Id="TpEngine_c3bd4fe2-1775-4013-b91d-35f16d377d13">
+          <DisplayName>Trustframework Policy Engine Default Technical Profile</DisplayName>
+          <Protocol Name="None" />
+          <Metadata>
+            <Item Key="url">{service:te}</Item>
+          </Metadata>
+        </TechnicalProfile>
+      </TechnicalProfiles>
+    </ClaimsProvider>
+
+    <ClaimsProvider>
+      <DisplayName>SSO Session Management</DisplayName>
+      <TechnicalProfiles>
+        <TechnicalProfile Id="SSO-None">
+          <DisplayName>No Session Management</DisplayName>
+          <Protocol
+            Name="Proprietary"
+            Handler="Web.TPEngine.SSO.NoopSSOSessionProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"
+          />
+        </TechnicalProfile>
+
+        <TechnicalProfile Id="SSO-Default">
+          <DisplayName>Default SSO Session Management Provider</DisplayName>
+          <Description>
+            Session management using the Azure AD B2C internal session provider
+          </Description>
+          <Protocol
+            Name="Proprietary"
+            Handler="Web.TPEngine.SSO.DefaultSSOSessionProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"
+          />
+        </TechnicalProfile>
+      </TechnicalProfiles>
+    </ClaimsProvider>
+
+    <ClaimsProvider>
+      <DisplayName>Token Issuers</DisplayName>
+      <TechnicalProfiles>
+        <TechnicalProfile Id="JWTIssuer">
+          <DisplayName>JWT Issuer</DisplayName>
+          <Description>
+            Generates and issues the JSON web token containing the user's identity information
+          </Description>
+          <Protocol Name="OpenIdConnect" />
+          <OutputTokenFormat>JWT</OutputTokenFormat>
+          <Metadata>
+            <Item Key="issuer_refresh_token_user_identity_claim_type">objectId</Item>
+          </Metadata>
+          <CryptographicKeys>
+            <Key Id="issuer_secret" StorageReferenceId="B2C_1A_TokenSigningKeyContainer" />
+            <Key Id="issuer_refresh_token_key"
+                 StorageReferenceId="B2C_1A_TokenEncryptionKeyContainer"
+            />
+          </CryptographicKeys>
+        </TechnicalProfile>
+      </TechnicalProfiles>
+    </ClaimsProvider>
+
+    <ClaimsProvider>
+      <DisplayName>Local User</DisplayName>
+      <TechnicalProfiles>
+        <TechnicalProfile Id="ShowLogInForm">
+          <DisplayName>Log In Form</DisplayName>
+          <Description>Presents the user with a form to log in with</Description>
+          <Protocol
+            Name="Proprietary"
+            Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"
+          />
+          <Metadata>
+            <Item Key="ContentDefinitionReferenceId">logincontentdefinition</Item>
+          </Metadata>
+          <DisplayClaims>
+            <DisplayClaim ClaimTypeReferenceId="email" Required="true" />
+            <DisplayClaim ClaimTypeReferenceId="password" Required="true" />
+          </DisplayClaims>
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="email" Required="true" />
+            <OutputClaim ClaimTypeReferenceId="password" Required="true" />
+            <OutputClaim ClaimTypeReferenceId="objectId" />
+          </OutputClaims>
+          <ValidationTechnicalProfiles>
+            <ValidationTechnicalProfile ReferenceId="LogInLocalUser" />
+          </ValidationTechnicalProfiles>
+          <UseTechnicalProfileForSessionManagement ReferenceId="SSO-Default" />
+        </TechnicalProfile>
+
+        <TechnicalProfile Id="LogInLocalUser">
+          <DisplayName>Local Account Log In</DisplayName>
+          <Protocol Name="OpenIdConnect" />
+          <Metadata>
+            <Item Key="ProviderName">https://sts.windows.net/</Item>
+            <Item Key="METADATA">
+              https://login.microsoftonline.com/{tenant}/.well-known/openid-configuration
+            </Item>
+            <Item Key="authorization_endpoint">
+              https://login.microsoftonline.com/{tenant}/oauth2/token
+            </Item>
+            <Item Key="response_types">id_token</Item>
+            <Item Key="response_mode">query</Item>
+            <Item Key="scope">email openid</Item>
+            <Item Key="UsePolicyInRedirectUri">false</Item>
+            <Item Key="HttpBinding">POST</Item>
+            <!--ProxyIdentityFramework clientId here-->
+            <Item Key="client_id">57a18278-6e97-4c78-b502-bfe7e4717ed5</Item>
+            <!--IdentityFramework clientId here-->
+            <Item Key="IdTokenAudience">06c6404f-412c-4651-93aa-9eb897427f84</Item>
+          </Metadata>
+          <InputClaims>
+            <InputClaim
+              ClaimTypeReferenceId="email"
+              PartnerClaimType="username"
+              Required="true"
+            />
+            <InputClaim ClaimTypeReferenceId="password" Required="true" />
+            <InputClaim
+              ClaimTypeReferenceId="grant_type"
+              DefaultValue="password"
+              AlwaysUseDefaultValue="true"
+            />
+            <InputClaim
+              ClaimTypeReferenceId="scope"
+              DefaultValue="openid"
+              AlwaysUseDefaultValue="true"
+            />
+            <InputClaim
+              ClaimTypeReferenceId="nca"
+              PartnerClaimType="nca"
+              DefaultValue="1"
+            />
+            <!--ProxyIdentityFramework clientId here-->
+            <InputClaim
+              ClaimTypeReferenceId="client_id"
+              DefaultValue="57a18278-6e97-4c78-b502-bfe7e4717ed5"
+            />
+            <!--IdentityFramework clientId here-->
+            <InputClaim
+              ClaimTypeReferenceId="resource_id"
+              PartnerClaimType="resource"
+              DefaultValue="06c6404f-412c-4651-93aa-9eb897427f84"
+            />
+          </InputClaims>
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="oid" />
+            <OutputClaim ClaimTypeReferenceId="tenantId" PartnerClaimType="tid" />
+            <OutputClaim
+              ClaimTypeReferenceId="authenticationSource"
+              DefaultValue="localAccountAuthentication"
+            />
+          </OutputClaims>
+        </TechnicalProfile>
+      </TechnicalProfiles>
+    </ClaimsProvider>
+  </ClaimsProviders>
+
+  <UserJourneys>
+    <UserJourney Id="LogIn">
+      <OrchestrationSteps>
+        <OrchestrationStep Order="1" Type="ClaimsExchange">
+          <ClaimsExchanges>
+            <ClaimsExchange
+              Id="ShowLogInForm"
+              TechnicalProfileReferenceId="ShowLogInForm"
+            />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+        <OrchestrationStep
+          Order="2"
+          Type="SendClaims"
+          CpimIssuerTechnicalProfileReferenceId="JWTIssuer"
+        />
+      </OrchestrationSteps>
+    </UserJourney>
+  </UserJourneys>
+
+  <RelyingParty>
+    <DefaultUserJourney ReferenceId="LogIn" />
+    <UserJourneyBehaviors>
+      <JourneyInsights
+        TelemetryEngine="ApplicationInsights"
+        InstrumentationKey="7c25e293-8d7e-46c8-9e84-39400c53f1fb"
+        DeveloperMode="true"
+        ClientEnabled="true"
+        ServerEnabled="true"
+        TelemetryVersion="1.0.0"
+      />
+      <ScriptExecution>Allow</ScriptExecution>
+    </UserJourneyBehaviors>
+    <TechnicalProfile Id="PolicyProfile">
+      <DisplayName>Log In</DisplayName>
+      <Description>
+        Allows users to log into a client application using their password
+      </Description>
+      <Protocol Name="OpenIdConnect" />
+      <InputClaims>
+        <InputClaim ClaimTypeReferenceId="email" />
+      </InputClaims>
+      <OutputClaims>
+        <OutputClaim
+          ClaimTypeReferenceId="objectId"
+          PartnerClaimType="sub"
+        />
+        <OutputClaim
+          ClaimTypeReferenceId="tenantId"
+          AlwaysUseDefaultValue="true"
+          DefaultValue="{Policy:TenantObjectId}"
+        />
+      </OutputClaims>
+      <SubjectNamingInfo ClaimType="sub" />
+    </TechnicalProfile>
+  </RelyingParty>
+</TrustFrameworkPolicy>

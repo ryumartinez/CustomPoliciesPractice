@@ -7,19 +7,28 @@
   PublicPolicyUri="http://certiversepoc.onmicrosoft.com/B2C_1A_SingleFileLogin">
   <BuildingBlocks>
     <ClaimsSchema>
+      <!--Variables to store data collected from the form-->
+      <ClaimType Id="signInName">
+        <DisplayName>Email</DisplayName>
+        <DataType>string</DataType>
+        <UserHelpText>Email</UserHelpText>
+        <UserInputType>TextBox</UserInputType>
+      </ClaimType>
+
+      <ClaimType Id="password">
+        <DisplayName>Password</DisplayName>
+        <DataType>string</DataType>
+        <UserHelpText>Password</UserHelpText>
+        <UserInputType>Password</UserInputType>
+      </ClaimType>
+
+      <!--Variables required to make an openId connection-->
       <ClaimType Id="objectId">
         <DisplayName>User ID</DisplayName>
         <DataType>string</DataType>
         <DefaultPartnerClaimTypes>
           <Protocol Name="OpenIdConnect" PartnerClaimType="oid" />
         </DefaultPartnerClaimTypes>
-      </ClaimType>
-
-      <ClaimType Id="signInName">
-        <DisplayName>Email</DisplayName>
-        <DataType>string</DataType>
-        <UserHelpText>Email</UserHelpText>
-        <UserInputType>TextBox</UserInputType>
       </ClaimType>
 
       <ClaimType Id="sub">
@@ -56,13 +65,6 @@
       <ClaimType Id="nca">
         <DisplayName>nca</DisplayName>
         <DataType>string</DataType>
-      </ClaimType>
-
-      <ClaimType Id="password">
-        <DisplayName>Password</DisplayName>
-        <DataType>string</DataType>
-        <UserHelpText>Password</UserHelpText>
-        <UserInputType>Password</UserInputType>
       </ClaimType>
 
       <ClaimType Id="resource_id">

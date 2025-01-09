@@ -1,0 +1,32 @@
+<ClaimsProviders>
+  <!--A ClaimsProvider is like a class containing methods-->
+  <ClaimsProvider>
+    <DisplayName>Local User</DisplayName>
+    <TechnicalProfiles>
+      <!--A TechnicalProfile is like a method-->
+      <TechnicalProfile Id="ShowLogInForm">
+        <DisplayName>Log In Form</DisplayName>
+        <Description>Presents the user with a form to log in with</Description>
+        <!--We can use pre-defined logic for methods using Protocols
+        Here we are using the SelfAsserted protocol, which is used to define forms
+        -->
+        <Protocol
+          Name="Proprietary"
+          Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"
+        />
+        <!--Elements required for the SelfAsserted protocol-->
+        <Metadata>
+          <Item Key="ContentDefinitionReferenceId">logincontentdefinition</Item>
+        </Metadata>
+        <DisplayClaims>
+          <DisplayClaim ClaimTypeReferenceId="email" Required="true" />
+          <DisplayClaim ClaimTypeReferenceId="password" Required="true" />
+        </DisplayClaims>
+        <OutputClaims>
+          <OutputClaim ClaimTypeReferenceId="email" Required="true" />
+          <OutputClaim ClaimTypeReferenceId="password" Required="true" />
+        </OutputClaims>
+      </TechnicalProfile>
+    </TechnicalProfiles>
+  </ClaimsProvider>
+</ClaimsProviders>

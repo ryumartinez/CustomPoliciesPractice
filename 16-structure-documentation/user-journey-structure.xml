@@ -1,0 +1,15 @@
+<!--User journeys define the order of execution of the technical profiles-->
+<UserJourneys>
+  <UserJourney Id="LogIn">
+    <OrchestrationSteps>
+      <OrchestrationStep Order="1" Type="ClaimsExchange">
+        <ClaimsExchanges>
+          <ClaimsExchange
+            Id="ShowLogInForm"
+            TechnicalProfileReferenceId="ShowLogInForm"
+          />
+        </ClaimsExchanges>
+      </OrchestrationStep>
+    </OrchestrationSteps>
+  </UserJourney>
+</UserJourneys>

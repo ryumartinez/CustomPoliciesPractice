@@ -1,0 +1,35 @@
+<BuildingBlocks>
+  <!-- The ClaimSchema element group ClaimTypes. ClaimTypes are variables-->
+  <ClaimSchema>
+    <!-- Variable called 'example', with type string-->
+    <ClaimType id="example">
+      <DataType>string</DataType>
+    </ClaimType>
+
+    <!-- Variable with type string, with form input binding capability-->
+    <ClaimType Id="email">
+      <DataType>string</DataType>
+      <DisplayName>Email</DisplayName>
+      <UserHelpText>Email</UserHelpText>
+      <UserInputType>TextBox</UserInputType>
+    </ClaimType>
+  </ClaimSchema>
+
+  <!--Group of ContentDefinitions. A content definition define how the form will look like-->
+  <ContentDefinitions>
+    <!--Definition for a sign up form-->
+    <ContentDefinition Id="SignUpForm">
+      <!--Source of the form template-->
+      <LoadUri>
+        https://certiversepoc.blob.core.windows.net/auth-template/custom-sign-up.html
+      </LoadUri>
+      <!--Source of the error template-->
+      <RecoveryUri>~/common/default_page_error.html</RecoveryUri>
+      <!--Source of the base template provided by azure-->
+      <DataUri>urn:com:microsoft:aad:b2c:elements:contract:selfasserted:2.1.7</DataUri>
+      <Metadata>
+        <Item Key="DisplayName">Sign up</Item>
+      </Metadata>
+    </ContentDefinition>
+  </ContentDefinitions>
+</BuildingBlocks>

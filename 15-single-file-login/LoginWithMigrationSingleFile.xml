@@ -98,8 +98,6 @@
         <UserHelpText>migrationRequired</UserHelpText>
       </ClaimType>
 
-      <!--Variables required by AAD-->
-
       <ClaimType Id="displayName">
         <DisplayName>Display Name</DisplayName>
         <DataType>string</DataType>

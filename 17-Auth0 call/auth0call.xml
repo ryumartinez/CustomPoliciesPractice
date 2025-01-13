@@ -4,8 +4,8 @@
                       xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06"
                       xmlns:schemaLocation="https://raw.githubusercontent.com/Azure-Samples/active-directory-b2c-custom-policy-starterpack/master/TrustFrameworkPolicy_0.3.0.0.xsd"
                       PolicySchemaVersion="0.3.0.0" TenantId="certiversepoc.onmicrosoft.com"
-                      PolicyId="B2C_1A_RestSuccess"
-                      PublicPolicyUri="http://certiversepoc.onmicrosoft.com/B2C_1A_RestSuccess">
+                      PolicyId="B2C_1A_Auth0Call"
+                      PublicPolicyUri="http://certiversepoc.onmicrosoft.com/B2C_1A_Auth0Call">
 
 <BuildingBlocks>
   <ClaimsSchema>
@@ -33,17 +33,6 @@
       <UserInputType>TextBox</UserInputType>
     </ClaimType>
 
-
-    <ClaimType Id="migrationRequired">
-      <DisplayName>Requires Migration</DisplayName>
-      <DataType>boolean</DataType>
-    </ClaimType>
-
-    <ClaimType Id="tokenSuccess">
-      <DisplayName>Token Success</DisplayName>
-      <DataType>boolean</DataType>
-    </ClaimType>
-
 <!--Auth0 claim types-->
     <!--Auth0 response body-->
     <ClaimType Id="error">
@@ -55,20 +44,20 @@
       <DataType>string</DataType>
     </ClaimType>
     <ClaimType Id="refresh_token">
-      <DisplayName>Access Token</DisplayName>
+      <DisplayName>Refresh Token</DisplayName>
       <DataType>string</DataType>
     </ClaimType>
     <ClaimType Id="id_token">
-      <DisplayName>Access Token</DisplayName>
+      <DisplayName>Id token</DisplayName>
       <DataType>string</DataType>
     </ClaimType>
     <ClaimType Id="token_type">
-      <DisplayName>Access Token</DisplayName>
+      <DisplayName>Token type</DisplayName>
       <DataType>string</DataType>
     </ClaimType>
     <ClaimType Id="expires_in">
-      <DisplayName>Access Token</DisplayName>
-      <DataType>string</DataType>
+      <DisplayName>Expires in</DisplayName>
+      <DataType>int</DataType>
     </ClaimType>
 
     <!--Auth0 request body-->
@@ -192,7 +181,7 @@
           <OutputClaim ClaimTypeReferenceId="refresh_token" />
           <OutputClaim ClaimTypeReferenceId="id_token" />
           <OutputClaim ClaimTypeReferenceId="token_type" />
-          <OutputClaim ClaimTypeReferenceId="expires_in" />
+          <OutputClaim ClaimTypeReferenceId="expires_in"  DefaultValue="0" AlwaysUseDefaultValue="true"/>
         </OutputClaims>
       </TechnicalProfile>
     </TechnicalProfiles>
@@ -271,8 +260,6 @@
       <OutputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="sub"/>
       <OutputClaim ClaimTypeReferenceId="email"/>
       <OutputClaim ClaimTypeReferenceId="password"/>
-      <OutputClaim ClaimTypeReferenceId="migrationRequired"/>
-      <OutputClaim ClaimTypeReferenceId="tokenSuccess"/>
     </OutputClaims>
     <SubjectNamingInfo ClaimType="sub"/>
   </TechnicalProfile>

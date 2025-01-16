@@ -2,10 +2,16 @@
 <TrustFrameworkPolicy
   xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06"
   PolicySchemaVersion="0.3.0.0"
+  xmlns:schemaLocation="https://raw.githubusercontent.com/Azure-Samples/active-directory-b2c-custom-policy-starterpack/master/TrustFrameworkPolicy_0.3.0.0.xsd"
   TenantId="certiversepoc.onmicrosoft.com"
-  PolicyId="B2C_1A_SingleFileLoginWithAuth0Migration"
-  PublicPolicyUri="http://certiversepoc.onmicrosoft.com/B2C_1A_SingleFileLoginWithAuth0Migration">
+  PolicyId="B2C_1A_LoginWithAuth0Migration"
+  PublicPolicyUri="http://certiversepoc.onmicrosoft.com/B2C_1A_LoginWithAuth0Migration"
+  DeploymentMode="Production"
+  UserJourneyRecorderEndpoint="urn:journeyrecorder:applicationinsights">
+
+<!--Variables and UI definitions-->
   <BuildingBlocks>
+    <!--Variables-->
     <ClaimsSchema>
       <!--Variables to store data collected from the form-->
       <ClaimType Id="email">
@@ -128,29 +134,31 @@
       </ClaimType>
 
       <!--Auth0 request body-->
-
       <ClaimType Id="auth0_grant_type">
-        <DisplayName>Access Token</DisplayName>
+        <DisplayName>Auth0 grant type</DisplayName>
         <DataType>string</DataType>
       </ClaimType>
       <ClaimType Id="auth0_client_id">
-        <DisplayName>Access Token</DisplayName>
+        <DisplayName>Auth0 client id</DisplayName>
         <DataType>string</DataType>
       </ClaimType>
       <ClaimType Id="client_secret">
-        <DisplayName>Access Token</DisplayName>
+        <DisplayName>Auth0 client secret</DisplayName>
         <DataType>string</DataType>
       </ClaimType>
-      <ClaimType Id="audience">
-        <DisplayName>Access Token</DisplayName>
+      <ClaimType Id="auth0_audience">
+        <DisplayName>Auth0 audience</DisplayName>
         <DataType>string</DataType>
       </ClaimType>
     </ClaimsSchema>
 
+    <!--Html, Css and Js sources-->
     <ContentDefinitions>
       <ContentDefinition Id="logincontentdefinition">
+        <!--Template customization-->
         <LoadUri>https://certiversepoc.blob.core.windows.net/auth-template/custom-sign-up.html</LoadUri>
         <RecoveryUri>~/common/default_page_error.html</RecoveryUri>
+        <!--Base form logic provided by azure-->
         <DataUri>urn:com:microsoft:aad:b2c:elements:contract:selfasserted:2.1.7</DataUri>
         <Metadata>
           <Item Key="DisplayName">Log In</Item>
@@ -159,6 +167,8 @@
     </ContentDefinitions>
   </BuildingBlocks>
 
+
+<!--Methods definitions-->
   <ClaimsProviders>
     <ClaimsProvider>
       <DisplayName>Trustframework Policy Engine TechnicalProfiles</DisplayName>
@@ -173,7 +183,7 @@
       </TechnicalProfiles>
     </ClaimsProvider>
 
-    <!--SSO Management-->
+    <!--SSO Management. Docs: https://learn.microsoft.com/en-us/azure/active-directory-b2c/custom-policy-reference-sso-->
     <ClaimsProvider>
       <DisplayName>SSO Session Management</DisplayName>
       <TechnicalProfiles>
@@ -198,7 +208,7 @@
       </TechnicalProfiles>
     </ClaimsProvider>
 
-    <!--JWT issuer-->
+    <!--JWT issuer. Docs: https://learn.microsoft.com/en-us/azure/active-directory-b2c/jwt-issuer-technical-profile-->
     <ClaimsProvider>
       <DisplayName>Token Issuers</DisplayName>
       <TechnicalProfiles>
@@ -222,125 +232,7 @@
       </TechnicalProfiles>
     </ClaimsProvider>
 
-    <!--Login Form display and openId authentication-->
-    <ClaimsProvider>
-      <DisplayName>Local User</DisplayName>
-      <TechnicalProfiles>
-        <TechnicalProfile Id="ShowLogInForm">
-          <DisplayName>Log In Form</DisplayName>
-          <Description>Presents the user with a form to log in with</Description>
-          <Protocol
-            Name="Proprietary"
-            Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"
-          />
-          <Metadata>
-            <Item Key="ContentDefinitionReferenceId">logincontentdefinition</Item>
-          </Metadata>
-          <DisplayClaims>
-            <DisplayClaim ClaimTypeReferenceId="email" Required="true" />
-            <DisplayClaim ClaimTypeReferenceId="password" Required="true" />
-          </DisplayClaims>
-          <OutputClaims>
-            <OutputClaim ClaimTypeReferenceId="email" Required="true" />
-            <OutputClaim ClaimTypeReferenceId="password" Required="true" />
-            <OutputClaim ClaimTypeReferenceId="objectId" />
-          </OutputClaims>
-          <ValidationTechnicalProfiles>
-            <!--Read AAD data to collect requiresMigration attribute value-->
-            <ValidationTechnicalProfile ReferenceId="AAD-UserReadUsingEmailAddress"/>
-            <!--Call REST api if requiresMigration attribute is true and validate email and password with OAuth-->
-            <ValidationTechnicalProfile ReferenceId="ValidationWithOAuth">
-              <Preconditions>
-                <Precondition Type="ClaimEquals" ExecuteActionsIf="true">
-                  <Value>extension_requiresMigration</Value>
-                  <Value>False</Value>
-                  <Action>SkipThisValidationTechnicalProfile</Action>
-                </Precondition>
-              </Preconditions>
-            </ValidationTechnicalProfile>
-            <!--Update requiresMigration to false attribute only if REST api returns access_token with 200 status-->
-            <ValidationTechnicalProfile ReferenceId="AAD-UserWriteProfileUsingObjectId">
-              <Preconditions>
-                <Precondition Type="ClaimsExist" ExecuteActionsIf="false">
-                  <Value>access_token</Value>
-                  <Action>SkipThisValidationTechnicalProfile</Action>
-                </Precondition>
-              </Preconditions>
-            </ValidationTechnicalProfile>
-            <!--Validates email and password with Entra-->
-            <ValidationTechnicalProfile ReferenceId="LogInLocalUser" />
-          </ValidationTechnicalProfiles>
-          <UseTechnicalProfileForSessionManagement ReferenceId="SSO-Default" />
-        </TechnicalProfile>
-
-        <TechnicalProfile Id="LogInLocalUser">
-          <DisplayName>Local Account Log In</DisplayName>
-          <Protocol Name="OpenIdConnect" />
-          <Metadata>
-            <Item Key="ProviderName">https://sts.windows.net/</Item>
-            <Item Key="METADATA">
-              https://login.microsoftonline.com/{tenant}/.well-known/openid-configuration
-            </Item>
-            <Item Key="authorization_endpoint">
-              https://login.microsoftonline.com/{tenant}/oauth2/token
-            </Item>
-            <Item Key="response_types">id_token</Item>
-            <Item Key="response_mode">query</Item>
-            <Item Key="scope">email openid</Item>
-            <Item Key="UsePolicyInRedirectUri">false</Item>
-            <Item Key="HttpBinding">POST</Item>
-            <!--ProxyIdentityFramework clientId here-->
-            <Item Key="client_id">57a18278-6e97-4c78-b502-bfe7e4717ed5</Item>
-            <!--IdentityFramework clientId here-->
-            <Item Key="IdTokenAudience">06c6404f-412c-4651-93aa-9eb897427f84</Item>
-          </Metadata>
-          <InputClaims>
-            <InputClaim
-              ClaimTypeReferenceId="email"
-              PartnerClaimType="username"
-              Required="true"
-            />
-            <InputClaim ClaimTypeReferenceId="password" Required="true" />
-            <InputClaim
-              ClaimTypeReferenceId="grant_type"
-              DefaultValue="password"
-              AlwaysUseDefaultValue="true"
-            />
-            <InputClaim
-              ClaimTypeReferenceId="scope"
-              DefaultValue="openid"
-              AlwaysUseDefaultValue="true"
-            />
-            <InputClaim
-              ClaimTypeReferenceId="nca"
-              PartnerClaimType="nca"
-              DefaultValue="1"
-            />
-            <!--ProxyIdentityFramework clientId here-->
-            <InputClaim
-              ClaimTypeReferenceId="client_id"
-              DefaultValue="57a18278-6e97-4c78-b502-bfe7e4717ed5"
-            />
-            <!--IdentityFramework clientId here-->
-            <InputClaim
-              ClaimTypeReferenceId="resource_id"
-              PartnerClaimType="resource"
-              DefaultValue="06c6404f-412c-4651-93aa-9eb897427f84"
-            />
-          </InputClaims>
-          <OutputClaims>
-            <OutputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="oid" />
-            <OutputClaim ClaimTypeReferenceId="tenantId" PartnerClaimType="tid" />
-            <OutputClaim
-              ClaimTypeReferenceId="authenticationSource"
-              DefaultValue="localAccountAuthentication"
-            />
-          </OutputClaims>
-        </TechnicalProfile>
-      </TechnicalProfiles>
-    </ClaimsProvider>
-
-    <!--AAD data collector-->
+    <!--Entra users data access. Docs: https://learn.microsoft.com/en-us/azure/active-directory-b2c/active-directory-technical-profile#protocol-->
     <ClaimsProvider>
       <DisplayName>AAD data collector</DisplayName>
       <TechnicalProfiles>
@@ -413,16 +305,17 @@
       </TechnicalProfiles>
     </ClaimsProvider>
 
-    <!--Rest api data collector-->
+    <!--Auth0 validator. Docs:
+    https://learn.microsoft.com/en-us/azure/active-directory-b2c/restful-technical-profile
+    https://auth0.com/docs/get-started/authentication-and-authorization-flow/resource-owner-password-flow/call-your-api-using-resource-owner-password-flow -->
     <ClaimsProvider>
       <DisplayName>REST API to communicate with Legacy IdP</DisplayName>
       <TechnicalProfiles>
         <TechnicalProfile Id="ValidationWithOAuth">
           <DisplayName>REST API call to communicate with Legacy IdP</DisplayName>
-          <Protocol Name="Proprietary"
-                    Handler="Web.TPEngine.Providers.RestfulProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"/>
+          <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.RestfulProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"/>
           <Metadata>
-
+            <Item Key="DebugMode">true</Item>
             <Item Key="ServiceUrl">https://dev-3fil8wr828ky3w5y.us.auth0.com/oauth/token</Item>
             <Item Key="AuthenticationType">None</Item>
             <Item Key="SendClaimsIn">Body</Item>
@@ -434,7 +327,7 @@
             <InputClaim ClaimTypeReferenceId="password"/>
             <InputClaim ClaimTypeReferenceId="auth0_client_id" PartnerClaimType="client_id" DefaultValue="mJ9CDgcXftg0dlvjEp25DcUb3HoJIATn" AlwaysUseDefaultValue="true"/>
             <InputClaim ClaimTypeReferenceId="client_secret" DefaultValue="kHEmmBqnNYoxLpZvWgv5Izf9wcqRtBJwRODdMwqB7dCl9ZnSgE5ryh-wvnro9nQg" AlwaysUseDefaultValue="true"/>
-            <InputClaim ClaimTypeReferenceId="audience" DefaultValue="https://dev-3fil8wr828ky3w5y.us.auth0.com/api/v2/" AlwaysUseDefaultValue="true"/>
+            <InputClaim ClaimTypeReferenceId="auth0_audience" PartnerClaimType="audience" DefaultValue="https://dev-3fil8wr828ky3w5y.us.auth0.com/api/v2/" AlwaysUseDefaultValue="true"/>
           </InputClaims>
           <OutputClaims>
             <OutputClaim ClaimTypeReferenceId="access_token"/>
@@ -446,16 +339,149 @@
         </TechnicalProfile>
       </TechnicalProfiles>
     </ClaimsProvider>
+
+    <!--OpenId validator. Docs: https://learn.microsoft.com/en-us/azure/active-directory-b2c/openid-connect-technical-profile-->
+    <ClaimsProvider>
+      <DisplayName>Login using email and password</DisplayName>
+      <TechnicalProfiles>
+        <TechnicalProfile Id="LogInLocalUser">
+          <DisplayName>Local Account Log In</DisplayName>
+          <Protocol Name="OpenIdConnect" />
+          <Metadata>
+            <Item Key="ProviderName">https://sts.windows.net/</Item>
+            <Item Key="METADATA">
+              https://login.microsoftonline.com/{tenant}/.well-known/openid-configuration
+            </Item>
+            <Item Key="authorization_endpoint">
+              https://login.microsoftonline.com/{tenant}/oauth2/token
+            </Item>
+            <Item Key="response_types">id_token</Item>
+            <Item Key="response_mode">query</Item>
+            <Item Key="scope">email openid</Item>
+            <Item Key="UsePolicyInRedirectUri">false</Item>
+            <Item Key="HttpBinding">POST</Item>
+            <!--ProxyIdentityFramework clientId here-->
+            <Item Key="client_id">57a18278-6e97-4c78-b502-bfe7e4717ed5</Item>
+            <!--IdentityFramework clientId here-->
+            <Item Key="IdTokenAudience">06c6404f-412c-4651-93aa-9eb897427f84</Item>
+          </Metadata>
+          <InputClaims>
+            <InputClaim
+              ClaimTypeReferenceId="email"
+              PartnerClaimType="username"
+              Required="true"
+            />
+            <InputClaim ClaimTypeReferenceId="password" Required="true" />
+            <InputClaim
+              ClaimTypeReferenceId="grant_type"
+              DefaultValue="password"
+              AlwaysUseDefaultValue="true"
+            />
+            <InputClaim
+              ClaimTypeReferenceId="scope"
+              DefaultValue="openid"
+              AlwaysUseDefaultValue="true"
+            />
+            <InputClaim
+              ClaimTypeReferenceId="nca"
+              PartnerClaimType="nca"
+              DefaultValue="1"
+            />
+            <!--ProxyIdentityFramework clientId here-->
+            <InputClaim
+              ClaimTypeReferenceId="client_id"
+              DefaultValue="57a18278-6e97-4c78-b502-bfe7e4717ed5"
+            />
+            <!--IdentityFramework clientId here-->
+            <InputClaim
+              ClaimTypeReferenceId="resource_id"
+              PartnerClaimType="resource"
+              DefaultValue="06c6404f-412c-4651-93aa-9eb897427f84"
+            />
+          </InputClaims>
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="oid" />
+            <OutputClaim ClaimTypeReferenceId="tenantId" PartnerClaimType="tid" />
+            <OutputClaim
+              ClaimTypeReferenceId="authenticationSource"
+              DefaultValue="localAccountAuthentication"
+            />
+          </OutputClaims>
+        </TechnicalProfile>
+      </TechnicalProfiles>
+    </ClaimsProvider>
+
+    <!--Display the form, perform validations and authenticate user with OpenId. Docs:
+     https://learn.microsoft.com/en-us/azure/active-directory-b2c/self-asserted-technical-profile
+     https://learn.microsoft.com/en-us/azure/active-directory-b2c/validation-technical-profile -->
+    <ClaimsProvider>
+      <DisplayName>Email and Password login form</DisplayName>
+      <TechnicalProfiles>
+        <TechnicalProfile Id="InitLoginForm">
+          <DisplayName>Log In Form</DisplayName>
+          <Description>Presents the user with a form to log in with</Description>
+          <Protocol
+            Name="Proprietary"
+            Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"
+          />
+          <Metadata>
+            <Item Key="ContentDefinitionReferenceId">logincontentdefinition</Item>
+          </Metadata>
+          <!--Form inputs to display-->
+          <DisplayClaims>
+            <DisplayClaim ClaimTypeReferenceId="email" Required="true" />
+            <DisplayClaim ClaimTypeReferenceId="password" Required="true" />
+          </DisplayClaims>
+          <!--Data to return after all validations-->
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="email" Required="true" />
+            <OutputClaim ClaimTypeReferenceId="password" Required="true" />
+            <OutputClaim ClaimTypeReferenceId="objectId" />
+          </OutputClaims>
+          <!--Validations-->
+          <ValidationTechnicalProfiles>
+            <!--Read AAD data to collect requiresMigration attribute value-->
+            <ValidationTechnicalProfile ReferenceId="AAD-UserReadUsingEmailAddress"/>
+            <!--OAuth validation-->
+            <ValidationTechnicalProfile ReferenceId="ValidationWithOAuth" ContinueOnError="true">
+              <!--Skip this validation if requiresMigration is false-->
+              <Preconditions>
+                <Precondition Type="ClaimEquals" ExecuteActionsIf="true">
+                  <Value>extension_requiresMigration</Value>
+                  <Value>False</Value>
+                  <Action>SkipThisValidationTechnicalProfile</Action>
+                </Precondition>
+              </Preconditions>
+            </ValidationTechnicalProfile>
+            <!--Update password and requiresMigration value-->
+            <ValidationTechnicalProfile ReferenceId="AAD-UserWriteProfileUsingObjectId">
+              <!--Skip this validation if the auth0 validation failed-->
+              <Preconditions>
+                <Precondition Type="ClaimsExist" ExecuteActionsIf="false">
+                  <Value>access_token</Value>
+                  <Action>SkipThisValidationTechnicalProfile</Action>
+                </Precondition>
+              </Preconditions>
+            </ValidationTechnicalProfile>
+            <!--Execute the credentials validation with Entra only if all previous steps succeeded-->
+            <ValidationTechnicalProfile ReferenceId="LogInLocalUser" />
+          </ValidationTechnicalProfiles>
+          <UseTechnicalProfileForSessionManagement ReferenceId="SSO-Default" />
+        </TechnicalProfile>
+      </TechnicalProfiles>
+    </ClaimsProvider>
   </ClaimsProviders>
 
+
+<!--Methods execution-->
   <UserJourneys>
     <UserJourney Id="LogIn">
       <OrchestrationSteps>
         <OrchestrationStep Order="1" Type="ClaimsExchange">
           <ClaimsExchanges>
             <ClaimsExchange
-              Id="ShowLogInForm"
-              TechnicalProfileReferenceId="ShowLogInForm"
+              Id="InitLoginForm"
+              TechnicalProfileReferenceId="InitLoginForm"
             />
           </ClaimsExchanges>
         </OrchestrationStep>
@@ -468,9 +494,12 @@
     </UserJourney>
   </UserJourneys>
 
+
+<!--Initialization config-->
   <RelyingParty>
     <DefaultUserJourney ReferenceId="LogIn" />
     <UserJourneyBehaviors>
+      <!--Application Insights config. Docs: https://learn.microsoft.com/en-us/azure/active-directory-b2c/troubleshoot-with-application-insights?pivots=b2c-custom-policy-->
       <JourneyInsights
         TelemetryEngine="ApplicationInsights"
         InstrumentationKey="7c25e293-8d7e-46c8-9e84-39400c53f1fb"
@@ -479,6 +508,7 @@
         ServerEnabled="true"
         TelemetryVersion="1.0.0"
       />
+      <!--Allow Js-->
       <ScriptExecution>Allow</ScriptExecution>
     </UserJourneyBehaviors>
     <TechnicalProfile Id="PolicyProfile">

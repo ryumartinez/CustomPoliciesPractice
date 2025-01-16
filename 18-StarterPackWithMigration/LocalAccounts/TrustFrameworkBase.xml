@@ -489,6 +489,88 @@
         in this section, then it cannot be used in a technical policy.
     -->
   <ClaimsProviders>
+    <ClaimsProvider>
+      <DisplayName>User Migration</DisplayName>
+      <TechnicalProfiles>
+        <TechnicalProfile Id="ReadMigrationStatus">
+          <Metadata>
+            <Item Key="ClientId">c3a79a9b-60a7-4056-afa2-a553ce5ebb7d</Item>
+            <Item Key="ApplicationObjectId">1cf91709-e0fe-4c31-b96c-e225a8063960</Item>
+            <Item Key="Operation">Read</Item>
+            <Item Key="RaiseErrorIfClaimsPrincipalDoesNotExist">true</Item>
+            <Item Key="UserMessageIfClaimsPrincipalDoesNotExist">An account could not be found for the provided user
+              ID.
+            </Item>
+          </Metadata>
+          <IncludeInSso>false</IncludeInSso>
+          <InputClaims>
+            <InputClaim ClaimTypeReferenceId="signInName" PartnerClaimType="signInNames.emailAddress" Required="true"/>
+          </InputClaims>
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="objectId"/>
+            <OutputClaim ClaimTypeReferenceId="displayName"/>
+            <OutputClaim ClaimTypeReferenceId="userPrincipalName"/>
+            <OutputClaim ClaimTypeReferenceId="extension_requiresMigration"/>
+          </OutputClaims>
+          <IncludeTechnicalProfile ReferenceId="AAD-Common"/>
+        </TechnicalProfile>
+        <TechnicalProfile Id="ValidationWithOAuth">
+          <DisplayName>REST API call to communicate with Legacy IdP</DisplayName>
+          <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.RestfulProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"/>
+          <Metadata>
+            <Item Key="DebugMode">true</Item>
+            <Item Key="ServiceUrl">https://dev-3fil8wr828ky3w5y.us.auth0.com/oauth/token</Item>
+            <Item Key="AuthenticationType">None</Item>
+            <Item Key="SendClaimsIn">Body</Item>
+            <Item Key="AllowInsecureAuthInProduction">true</Item>
+          </Metadata>
+          <InputClaims>
+            <InputClaim ClaimTypeReferenceId="auth0_grant_type" PartnerClaimType="grant_type" DefaultValue="password" AlwaysUseDefaultValue="true"/>
+            <InputClaim ClaimTypeReferenceId="signInName" PartnerClaimType="username"/>
+            <InputClaim ClaimTypeReferenceId="password"/>
+            <InputClaim ClaimTypeReferenceId="auth0_client_id" PartnerClaimType="client_id" DefaultValue="mJ9CDgcXftg0dlvjEp25DcUb3HoJIATn" AlwaysUseDefaultValue="true"/>
+            <InputClaim ClaimTypeReferenceId="client_secret" DefaultValue="kHEmmBqnNYoxLpZvWgv5Izf9wcqRtBJwRODdMwqB7dCl9ZnSgE5ryh-wvnro9nQg" AlwaysUseDefaultValue="true"/>
+            <InputClaim ClaimTypeReferenceId="auth0_audience" PartnerClaimType="audience" DefaultValue="https://dev-3fil8wr828ky3w5y.us.auth0.com/api/v2/" AlwaysUseDefaultValue="true"/>
+          </InputClaims>
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="access_token"/>
+            <OutputClaim ClaimTypeReferenceId="refresh_token" />
+            <OutputClaim ClaimTypeReferenceId="id_token" />
+            <OutputClaim ClaimTypeReferenceId="token_type" />
+            <OutputClaim ClaimTypeReferenceId="expires_in"  DefaultValue="0" AlwaysUseDefaultValue="true"/>
+          </OutputClaims>
+        </TechnicalProfile>
+        <TechnicalProfile Id="UpdatePasswordAndMigrationStatus">
+          <Metadata>
+            <Item Key="ClientId">c3a79a9b-60a7-4056-afa2-a553ce5ebb7d</Item>
+            <Item Key="ApplicationObjectId">1cf91709-e0fe-4c31-b96c-e225a8063960</Item>
+            <Item Key="Operation">Write</Item>
+            <Item Key="RaiseErrorIfClaimsPrincipalDoesNotExist">false</Item>
+          </Metadata>
+          <IncludeInSso>false</IncludeInSso>
+          <InputClaims>
+            <InputClaim ClaimTypeReferenceId="objectId" Required="true"/>
+          </InputClaims>
+          <PersistedClaims>
+            <PersistedClaim ClaimTypeReferenceId="objectId"/>
+            <PersistedClaim ClaimTypeReferenceId="userPrincipalName"/>
+            <PersistedClaim ClaimTypeReferenceId="extension_requiresMigration" DefaultValue="false"
+                            AlwaysUseDefaultValue="true" OverwriteIfExists="true"/>
+            <PersistedClaim ClaimTypeReferenceId="password" OverwriteIfExists="true"/>
+            <PersistedClaim ClaimTypeReferenceId="passwordPolicies"
+                            DefaultValue="DisablePasswordExpiration, DisableStrongPassword"
+                            AlwaysUseDefaultValue="true"/>
+            <PersistedClaim ClaimTypeReferenceId="displayName"/>
+          </PersistedClaims>
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="objectId"/>
+            <OutputClaim ClaimTypeReferenceId="userPrincipalName"/>
+            <OutputClaim ClaimTypeReferenceId="displayName"/>
+          </OutputClaims>
+          <IncludeTechnicalProfile ReferenceId="AAD-Common"/>
+        </TechnicalProfile>
+      </TechnicalProfiles>
+    </ClaimsProvider>
 
     <ClaimsProvider>
       <DisplayName>Local Account SignIn</DisplayName>
@@ -707,89 +789,6 @@
     </ClaimsProvider>
 
     <ClaimsProvider>
-      <DisplayName>User Migration</DisplayName>
-      <TechnicalProfiles>
-        <TechnicalProfile Id="ReadMigrationStatus">
-          <Metadata>
-            <Item Key="ClientId">c3a79a9b-60a7-4056-afa2-a553ce5ebb7d</Item>
-            <Item Key="ApplicationObjectId">1cf91709-e0fe-4c31-b96c-e225a8063960</Item>
-            <Item Key="Operation">Read</Item>
-            <Item Key="RaiseErrorIfClaimsPrincipalDoesNotExist">true</Item>
-            <Item Key="UserMessageIfClaimsPrincipalDoesNotExist">An account could not be found for the provided user
-              ID.
-            </Item>
-          </Metadata>
-          <IncludeInSso>false</IncludeInSso>
-          <InputClaims>
-            <InputClaim ClaimTypeReferenceId="email" PartnerClaimType="signInNames.emailAddress" Required="true"/>
-          </InputClaims>
-          <OutputClaims>
-            <OutputClaim ClaimTypeReferenceId="objectId"/>
-            <OutputClaim ClaimTypeReferenceId="displayName"/>
-            <OutputClaim ClaimTypeReferenceId="userPrincipalName"/>
-            <OutputClaim ClaimTypeReferenceId="extension_requiresMigration"/>
-          </OutputClaims>
-          <IncludeTechnicalProfile ReferenceId="AAD-Common"/>
-        </TechnicalProfile>
-        <TechnicalProfile Id="ValidationWithOAuth">
-          <DisplayName>REST API call to communicate with Legacy IdP</DisplayName>
-          <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.RestfulProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"/>
-          <Metadata>
-            <Item Key="DebugMode">true</Item>
-            <Item Key="ServiceUrl">https://dev-3fil8wr828ky3w5y.us.auth0.com/oauth/token</Item>
-            <Item Key="AuthenticationType">None</Item>
-            <Item Key="SendClaimsIn">Body</Item>
-            <Item Key="AllowInsecureAuthInProduction">true</Item>
-          </Metadata>
-          <InputClaims>
-            <InputClaim ClaimTypeReferenceId="auth0_grant_type" PartnerClaimType="grant_type" DefaultValue="password" AlwaysUseDefaultValue="true"/>
-            <InputClaim ClaimTypeReferenceId="email" PartnerClaimType="username"/>
-            <InputClaim ClaimTypeReferenceId="password"/>
-            <InputClaim ClaimTypeReferenceId="auth0_client_id" PartnerClaimType="client_id" DefaultValue="mJ9CDgcXftg0dlvjEp25DcUb3HoJIATn" AlwaysUseDefaultValue="true"/>
-            <InputClaim ClaimTypeReferenceId="client_secret" DefaultValue="kHEmmBqnNYoxLpZvWgv5Izf9wcqRtBJwRODdMwqB7dCl9ZnSgE5ryh-wvnro9nQg" AlwaysUseDefaultValue="true"/>
-            <InputClaim ClaimTypeReferenceId="auth0_audience" PartnerClaimType="audience" DefaultValue="https://dev-3fil8wr828ky3w5y.us.auth0.com/api/v2/" AlwaysUseDefaultValue="true"/>
-          </InputClaims>
-          <OutputClaims>
-            <OutputClaim ClaimTypeReferenceId="access_token"/>
-            <OutputClaim ClaimTypeReferenceId="refresh_token" />
-            <OutputClaim ClaimTypeReferenceId="id_token" />
-            <OutputClaim ClaimTypeReferenceId="token_type" />
-            <OutputClaim ClaimTypeReferenceId="expires_in"  DefaultValue="0" AlwaysUseDefaultValue="true"/>
-          </OutputClaims>
-        </TechnicalProfile>
-        <TechnicalProfile Id="UpdatePasswordAndMigrationStatus">
-          <Metadata>
-            <Item Key="ClientId">c3a79a9b-60a7-4056-afa2-a553ce5ebb7d</Item>
-            <Item Key="ApplicationObjectId">1cf91709-e0fe-4c31-b96c-e225a8063960</Item>
-            <Item Key="Operation">Write</Item>
-            <Item Key="RaiseErrorIfClaimsPrincipalDoesNotExist">false</Item>
-          </Metadata>
-          <IncludeInSso>false</IncludeInSso>
-          <InputClaims>
-            <InputClaim ClaimTypeReferenceId="objectId" Required="true"/>
-          </InputClaims>
-          <PersistedClaims>
-            <PersistedClaim ClaimTypeReferenceId="objectId"/>
-            <PersistedClaim ClaimTypeReferenceId="userPrincipalName"/>
-            <PersistedClaim ClaimTypeReferenceId="extension_requiresMigration" DefaultValue="false"
-                            AlwaysUseDefaultValue="true" OverwriteIfExists="true"/>
-            <PersistedClaim ClaimTypeReferenceId="password" OverwriteIfExists="true"/>
-            <PersistedClaim ClaimTypeReferenceId="passwordPolicies"
-                            DefaultValue="DisablePasswordExpiration, DisableStrongPassword"
-                            AlwaysUseDefaultValue="true"/>
-            <PersistedClaim ClaimTypeReferenceId="displayName"/>
-          </PersistedClaims>
-          <OutputClaims>
-            <OutputClaim ClaimTypeReferenceId="objectId"/>
-            <OutputClaim ClaimTypeReferenceId="userPrincipalName"/>
-            <OutputClaim ClaimTypeReferenceId="displayName"/>
-          </OutputClaims>
-          <IncludeTechnicalProfile ReferenceId="AAD-Common"/>
-        </TechnicalProfile>
-      </TechnicalProfiles>
-    </ClaimsProvider>
-
-    <ClaimsProvider>
       <DisplayName>Local Account</DisplayName>
       <TechnicalProfiles>
 
@@ -797,8 +796,6 @@
           <DisplayName>Email signup</DisplayName>
           <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
           <Metadata>
-            <Item Key="setting.showCancelButton">false</Item>
-            <Item Key="EnforceEmailVerification">false</Item>
             <Item Key="IpAddressClaimReferenceId">IpAddress</Item>
             <Item Key="ContentDefinitionReferenceId">api.localaccountsignup</Item>
           </Metadata>
